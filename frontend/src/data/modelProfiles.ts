@@ -63,6 +63,19 @@ const PROFILES: Record<string, ModelProfile> = {
       'Slower; overkill for simple chat',
     ],
   },
+  'phi3.5': {
+    bestFor: 'Microsoft Phi — reasoning & coding on a small footprint',
+    strengths: [
+      'Trained by Microsoft on high-quality curated data',
+      'Strong reasoning and coding for its 3.8B size',
+      'Solid instruction following and structured output',
+      'Long 128K context window',
+    ],
+    weaknesses: [
+      'Heavier than the sub-2B models here',
+      'Narrower world knowledge than larger models',
+    ],
+  },
 };
 
 const FALLBACK: ModelProfile = {
