@@ -33,6 +33,7 @@ function Translator() {
       placeholder="Type or paste the text to translate…"
       runLabel="Translate"
       outputLabel={`Translation (${lang})`}
+      accent="#10b981"
       controls={
         <select
           value={lang}

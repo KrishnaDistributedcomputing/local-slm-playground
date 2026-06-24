@@ -22,6 +22,7 @@ function EmailWriter() {
       placeholder="e.g. Ask the team to move tomorrow's standup to 11am…"
       runLabel="Write email"
       outputLabel={`Email (${tone})`}
+      accent="#3b82f6"
       controls={
         <select
           value={tone}

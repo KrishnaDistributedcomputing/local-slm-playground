@@ -29,6 +29,7 @@ function Rewriter() {
       placeholder="Paste the text you want to rephrase…"
       runLabel="Rewrite"
       outputLabel={`Rewritten (${style})`}
+      accent="#d946ef"
       controls={
         <select
           value={style}

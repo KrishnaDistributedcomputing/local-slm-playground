@@ -17,6 +17,7 @@ function SqlGenerator() {
       placeholder="e.g. Top 5 customers by total order value in 2024…"
       runLabel="Generate SQL"
       outputLabel="SQL query"
+      accent="#f97316"
     />
   );
 }

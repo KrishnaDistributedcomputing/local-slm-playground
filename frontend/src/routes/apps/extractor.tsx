@@ -17,6 +17,7 @@ function Extractor() {
       placeholder="Paste an email, invoice, receipt, or note…"
       runLabel="Extract JSON"
       outputLabel="Structured JSON"
+      accent="#f43f5e"
     />
   );
 }

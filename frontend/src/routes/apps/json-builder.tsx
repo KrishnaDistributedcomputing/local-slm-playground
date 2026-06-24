@@ -17,6 +17,7 @@ function JsonBuilder() {
       placeholder="e.g. A user profile with name, email, age, a list of roles, and an address with city and country…"
       runLabel="Generate JSON"
       outputLabel="JSON"
+      accent="#84cc16"
     />
   );
 }

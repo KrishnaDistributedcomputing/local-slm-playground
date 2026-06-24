@@ -17,6 +17,7 @@ function Summarizer() {
       placeholder="Paste an article, document, meeting notes…"
       runLabel="Summarize"
       outputLabel="Summary"
+      accent="#0ea5e9"
     />
   );
 }

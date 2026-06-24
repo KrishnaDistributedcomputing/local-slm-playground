@@ -61,8 +61,15 @@ function RootComponent() {
 
 function Header() {
   return (
-    <header className="h-16 border-b bg-card flex items-center justify-between px-6">
-      <h1 className="text-xl font-semibold">Local Models Playground</h1>
+    <header className="h-16 border-b bg-gradient-to-r from-indigo-50 via-card to-violet-50 flex items-center justify-between px-6">
+      <h1 className="flex items-center gap-2 text-xl font-bold">
+        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-sm">
+          <Sparkles className="h-4 w-4" />
+        </span>
+        <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+          Local Models Playground
+        </span>
+      </h1>
       <EndpointSelector />
     </header>
   );
@@ -115,210 +122,21 @@ function EndpointSelector() {
 }
 
 function Sidebar() {
-  const location = useLocation();
-
   return (
     <aside className="w-64 border-r bg-card min-h-[calc(100vh-4rem)]">
-      <nav className="p-4 space-y-2">
-        <Link
-          to="/"
-          className={cn(
-            'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-            location.pathname === '/'
-              ? 'bg-primary text-primary-foreground'
-              : 'hover:bg-muted'
-          )}
-        >
-          <Home className="h-4 w-4" />
-          Models
-        </Link>
-
-        <Link
-          to="/chat"
-          className={cn(
-            'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-            location.pathname === '/chat'
-              ? 'bg-primary text-primary-foreground'
-              : 'hover:bg-muted'
-          )}
-        >
-          <Sparkles className="h-4 w-4" />
-          AI Chat
-        </Link>
+      <nav className="p-4 space-y-1.5">
+        {PRIMARY_NAV.map((item) => (
+          <NavItem key={item.to} {...item} />
+        ))}
 
         <div className="pt-4">
           <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Apps
           </h3>
           <div className="mt-2 space-y-1">
-            <Link
-              to="/apps/summarizer"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/summarizer'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <FileText className="h-4 w-4" />
-              Summarizer
-            </Link>
-            <Link
-              to="/apps/translator"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/translator'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <Languages className="h-4 w-4" />
-              Translator
-            </Link>
-            <Link
-              to="/apps/code-reviewer"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/code-reviewer'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <Code2 className="h-4 w-4" />
-              Code Reviewer
-            </Link>
-            <Link
-              to="/apps/extractor"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/extractor'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <Braces className="h-4 w-4" />
-              Data Extractor
-            </Link>
-            <Link
-              to="/apps/email-writer"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/email-writer'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <Mail className="h-4 w-4" />
-              Email Writer
-            </Link>
-            <Link
-              to="/apps/proofreader"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/proofreader'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <SpellCheck className="h-4 w-4" />
-              Proofreader
-            </Link>
-            <Link
-              to="/apps/rewriter"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/rewriter'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <Wand2 className="h-4 w-4" />
-              Tone Rewriter
-            </Link>
-            <Link
-              to="/apps/brainstorm"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/brainstorm'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <Lightbulb className="h-4 w-4" />
-              Brainstormer
-            </Link>
-            <Link
-              to="/apps/explain"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/explain'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <GraduationCap className="h-4 w-4" />
-              Explainer
-            </Link>
-            <Link
-              to="/apps/sql"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/sql'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <Database className="h-4 w-4" />
-              SQL Generator
-            </Link>
-            <Link
-              to="/apps/json-builder"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/json-builder'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <FileJson className="h-4 w-4" />
-              JSON Builder
-            </Link>
-            <Link
-              to="/apps/azure-architecture"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/azure-architecture'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <CloudCog className="h-4 w-4" />
-              Azure Architecture
-            </Link>
-            <Link
-              to="/apps/polymarket"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/polymarket'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <CircleDollarSign className="h-4 w-4" />
-              Polymarket
-            </Link>
-            <Link
-              to="/apps/kalshi"
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                location.pathname === '/apps/kalshi'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
-              )}
-            >
-              <CandlestickChart className="h-4 w-4" />
-              Kalshi
-            </Link>
+            {APP_NAV.map((item) => (
+              <NavItem key={item.to} {...item} />
+            ))}
           </div>
         </div>
 
@@ -333,6 +151,70 @@ function Sidebar() {
         </div>
       </nav>
     </aside>
+  );
+}
+
+interface NavLink {
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+}
+
+const PRIMARY_NAV: NavLink[] = [
+  { to: '/', label: 'Models', icon: Home, color: '#6366f1' },
+  { to: '/chat', label: 'AI Chat', icon: Sparkles, color: '#8b5cf6' },
+];
+
+const APP_NAV: NavLink[] = [
+  { to: '/apps/summarizer', label: 'Summarizer', icon: FileText, color: '#0ea5e9' },
+  { to: '/apps/translator', label: 'Translator', icon: Languages, color: '#10b981' },
+  { to: '/apps/code-reviewer', label: 'Code Reviewer', icon: Code2, color: '#f59e0b' },
+  { to: '/apps/extractor', label: 'Data Extractor', icon: Braces, color: '#f43f5e' },
+  { to: '/apps/email-writer', label: 'Email Writer', icon: Mail, color: '#3b82f6' },
+  { to: '/apps/proofreader', label: 'Proofreader', icon: SpellCheck, color: '#14b8a6' },
+  { to: '/apps/rewriter', label: 'Tone Rewriter', icon: Wand2, color: '#d946ef' },
+  { to: '/apps/brainstorm', label: 'Brainstormer', icon: Lightbulb, color: '#eab308' },
+  { to: '/apps/explain', label: 'Explainer', icon: GraduationCap, color: '#06b6d4' },
+  { to: '/apps/sql', label: 'SQL Generator', icon: Database, color: '#f97316' },
+  { to: '/apps/json-builder', label: 'JSON Builder', icon: FileJson, color: '#84cc16' },
+  { to: '/apps/azure-architecture', label: 'Azure Architecture', icon: CloudCog, color: '#0078d4' },
+  { to: '/apps/polymarket', label: 'Polymarket', icon: CircleDollarSign, color: '#1652F0' },
+  { to: '/apps/kalshi', label: 'Kalshi', icon: CandlestickChart, color: '#00D09C' },
+];
+
+function NavItem({ to, label, icon: Icon, color }: NavLink) {
+  const location = useLocation();
+  const active = location.pathname === to;
+
+  return (
+    <Link
+      to={to}
+      className={cn(
+        'group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-all',
+        active ? 'shadow-sm ring-1' : 'text-foreground/80 hover:bg-muted hover:text-foreground',
+      )}
+      style={
+        active
+          ? {
+              backgroundColor: `color-mix(in srgb, ${color} 14%, transparent)`,
+              color,
+              boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${color} 30%, transparent)`,
+            }
+          : undefined
+      }
+    >
+      <span
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110"
+        style={{
+          backgroundColor: `color-mix(in srgb, ${color} 16%, transparent)`,
+          color,
+        }}
+      >
+        <Icon className="h-4 w-4" />
+      </span>
+      {label}
+    </Link>
   );
 }
 

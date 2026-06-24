@@ -28,6 +28,7 @@ function AzureArchitecture() {
       placeholder="e.g. A multi-tenant SaaS web app with a React frontend, .NET API, and SQL database serving global customers…"
       runLabel="Assess with WAF"
       outputLabel="Well-Architected review"
+      accent="#0078d4"
     />
   );
 }

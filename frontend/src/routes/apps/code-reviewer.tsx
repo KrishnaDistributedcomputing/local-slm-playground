@@ -17,6 +17,7 @@ function CodeReviewer() {
       placeholder="Paste a function, class, or file…"
       runLabel="Review"
       outputLabel="Review notes"
+      accent="#f59e0b"
     />
   );
 }

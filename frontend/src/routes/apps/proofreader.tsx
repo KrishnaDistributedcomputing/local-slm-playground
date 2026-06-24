@@ -17,6 +17,7 @@ function Proofreader() {
       placeholder="Paste the text you want corrected…"
       runLabel="Proofread"
       outputLabel="Corrected text"
+      accent="#14b8a6"
     />
   );
 }

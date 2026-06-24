@@ -22,6 +22,7 @@ function Explain() {
       placeholder="e.g. How does HTTPS keep data secure?"
       runLabel="Explain"
       outputLabel="Explanation"
+      accent="#06b6d4"
       controls={
         <select
           value={level}

@@ -17,6 +17,7 @@ function Brainstorm() {
       placeholder="e.g. Names for a privacy-first note-taking app…"
       runLabel="Brainstorm"
       outputLabel="Ideas"
+      accent="#eab308"
     />
   );
 }
