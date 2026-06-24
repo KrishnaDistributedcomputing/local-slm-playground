@@ -62,18 +62,13 @@ function HomePage() {
             Local Models Playground
           </h2>
           <p className="max-w-2xl text-muted-foreground">
-            Small language models running entirely on your machine in{' '}
-            <strong>Docker</strong> via{' '}
-            <a
-              href="https://ollama.com"
-              target="_blank"
-              rel="noreferrer"
-              className="underline underline-offset-2"
-            >
-              Ollama
-            </a>
-            . No API keys, no per-token cost, fully private. Pick a model below
-            and start chatting.
+            Seven small language models &mdash; Microsoft <strong>Phi-4-mini</strong>,{' '}
+            <strong>Phi-3.5</strong> and <strong>Phi-3-mini</strong>, plus{' '}
+            <strong>Qwen2.5</strong>, <strong>Llama&nbsp;3.2</strong>,{' '}
+            <strong>Gemma&nbsp;2</strong> and <strong>DeepSeek-R1</strong> &mdash;
+            running entirely on your machine in <strong>Docker</strong>. No API
+            keys, no per-token cost, fully private. Pick a model below and start
+            chatting.
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={refresh} disabled={loading}>
