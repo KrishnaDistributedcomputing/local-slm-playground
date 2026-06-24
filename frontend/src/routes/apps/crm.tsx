@@ -29,6 +29,12 @@ import {
   Square,
   Building2,
   CircleUser,
+  HelpCircle,
+  Megaphone,
+  ShieldCheck,
+  FileText,
+  Handshake,
+  Target,
 } from 'lucide-react';
 import {
   listContacts,
@@ -65,7 +71,17 @@ const STAGE_COLOR: Record<string, string> = {
   Won: '#10b981',
 };
 
-type AiTask = 'email' | 'action' | 'summary' | 'qualify';
+type AiTask =
+  | 'email'
+  | 'action'
+  | 'summary'
+  | 'qualify'
+  | 'discovery'
+  | 'pitch'
+  | 'objections'
+  | 'proposal'
+  | 'closing'
+  | 'closeplan';
 
 const AI_SYSTEM =
   'You are an expert B2B sales assistant embedded in a CRM. You help sales reps ' +
@@ -127,19 +143,70 @@ function buildAiPrompt(task: AiTask, d: CrmDetail): string {
         `state what we know, what's missing, and give an overall qualification ` +
         `verdict (Hot / Warm / Cold).\n\n${ctx}`
       );
+    case 'discovery':
+      return (
+        `Generate 6-8 sharp, open-ended discovery questions the rep should ask to ` +
+        `uncover budget, decision process, pain points and success criteria for ` +
+        `this deal. Group them by theme.\n\n${ctx}`
+      );
+    case 'pitch':
+      return (
+        `Write a tailored value pitch for this customer that connects our solution ` +
+        `to their likely pain points and the current deal stage. Lead with the ` +
+        `business outcome. Keep it under 120 words.\n\n${ctx}`
+      );
+    case 'objections':
+      return (
+        `Anticipate the 3-4 most likely objections for this deal at its current ` +
+        `stage. For each, state the objection and a concise, confident rebuttal the ` +
+        `rep can use to keep the deal moving.\n\n${ctx}`
+      );
+    case 'proposal':
+      return (
+        `Draft a concise, skimmable proposal outline to send this customer: a one-line ` +
+        `problem summary, the recommended solution, 3-5 scope bullets, a pricing ` +
+        `section anchored to the deal value, and clear next steps to sign.\n\n${ctx}`
+      );
+    case 'closing':
+      return (
+        `Write a closing email that confidently asks for the business and proposes a ` +
+        `concrete next step to sign or close. Professional, not pushy. Include a ` +
+        `subject line. Under 150 words.\n\n${ctx}`
+      );
+    case 'closeplan':
+      return (
+        `Create a step-by-step mutual close plan to move this deal from its current ` +
+        `stage to Won. For each remaining stage, give the goal, the rep's action, ` +
+        `what we need from the customer, and a target timeframe.\n\n${ctx}`
+      );
   }
 }
 
-const AI_TASKS: {
+const AI_BUILD_TASKS: {
   id: AiTask;
   label: string;
   icon: typeof Mail;
 }[] = [
-  { id: 'email', label: 'Draft outreach email', icon: Mail },
-  { id: 'action', label: 'Next best action', icon: Lightbulb },
-  { id: 'summary', label: 'Summarize deal', icon: ScrollText },
+  { id: 'discovery', label: 'Discovery questions', icon: HelpCircle },
+  { id: 'pitch', label: 'Value pitch', icon: Megaphone },
   { id: 'qualify', label: 'Qualify (BANT)', icon: Gauge },
+  { id: 'action', label: 'Next best action', icon: Lightbulb },
 ];
+
+const AI_CLOSE_TASKS: {
+  id: AiTask;
+  label: string;
+  icon: typeof Mail;
+}[] = [
+  { id: 'objections', label: 'Handle objections', icon: ShieldCheck },
+  { id: 'proposal', label: 'Draft proposal', icon: FileText },
+  { id: 'closing', label: 'Closing email', icon: Handshake },
+  { id: 'closeplan', label: 'Close plan', icon: Target },
+  { id: 'email', label: 'Outreach email', icon: Mail },
+  { id: 'summary', label: 'Summarize deal', icon: ScrollText },
+];
+
+const AI_TASKS = [...AI_BUILD_TASKS, ...AI_CLOSE_TASKS];
 
 function CrmApp() {
   const [online, setOnline] = useState<boolean | null>(null);
@@ -598,40 +665,90 @@ function CrmApp() {
               </div>
             </Card>
 
-            {/* AI assistant */}
-            <Card className="space-y-3 p-5">
-              <h3 className="flex items-center gap-2 text-sm font-semibold">
-                <Sparkles className="h-4 w-4" style={{ color: ACCENT }} />
-                AI sales assistant
-                <span className="text-xs font-normal text-muted-foreground">
-                  · {model}
-                </span>
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {AI_TASKS.map((t) => (
-                  <Button
-                    key={t.id}
-                    size="sm"
-                    variant={aiTask === t.id ? 'default' : 'outline'}
-                    onClick={() => runAi(t.id)}
-                    disabled={aiStreaming}
-                    style={
-                      aiTask === t.id
-                        ? { backgroundColor: ACCENT }
-                        : undefined
-                    }
-                    className={aiTask === t.id ? 'text-white' : undefined}
-                  >
-                    <t.icon className="h-4 w-4" />
-                    {t.label}
-                  </Button>
-                ))}
+            {/* AI-driven selling */}
+            <Card
+              className="space-y-4 p-5"
+              style={{
+                boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${ACCENT} 25%, transparent)`,
+              }}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="flex items-center gap-2 text-sm font-semibold">
+                  <Sparkles className="h-4 w-4" style={{ color: ACCENT }} />
+                  AI-driven selling
+                  <span className="text-xs font-normal text-muted-foreground">
+                    · {model}
+                  </span>
+                </h3>
                 {aiStreaming && (
                   <Button size="sm" variant="ghost" onClick={stopAi}>
                     <Square className="h-4 w-4" />
                     Stop
                   </Button>
                 )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Let the local model help you{' '}
+                <strong>build and close</strong> this deal — grounded only in
+                this lead&apos;s data and activity timeline.
+              </p>
+
+              <div className="space-y-2">
+                <div
+                  className="text-[11px] font-semibold uppercase tracking-wide"
+                  style={{ color: ACCENT }}
+                >
+                  Build the deal
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {AI_BUILD_TASKS.map((t) => (
+                    <Button
+                      key={t.id}
+                      size="sm"
+                      variant={aiTask === t.id ? 'default' : 'outline'}
+                      onClick={() => runAi(t.id)}
+                      disabled={aiStreaming}
+                      style={
+                        aiTask === t.id
+                          ? { backgroundColor: ACCENT }
+                          : undefined
+                      }
+                      className={aiTask === t.id ? 'text-white' : undefined}
+                    >
+                      <t.icon className="h-4 w-4" />
+                      {t.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div
+                  className="text-[11px] font-semibold uppercase tracking-wide"
+                  style={{ color: '#10b981' }}
+                >
+                  Close the deal
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {AI_CLOSE_TASKS.map((t) => (
+                    <Button
+                      key={t.id}
+                      size="sm"
+                      variant={aiTask === t.id ? 'default' : 'outline'}
+                      onClick={() => runAi(t.id)}
+                      disabled={aiStreaming}
+                      style={
+                        aiTask === t.id
+                          ? { backgroundColor: ACCENT }
+                          : undefined
+                      }
+                      className={aiTask === t.id ? 'text-white' : undefined}
+                    >
+                      <t.icon className="h-4 w-4" />
+                      {t.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
 
               {(aiOutput || aiStreaming) && (
