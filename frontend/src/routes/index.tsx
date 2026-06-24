@@ -336,38 +336,39 @@ function ModelCard({ model: m }: { model: ModelInfo }) {
       <div className="mt-auto flex flex-col gap-2 pt-1">
         <Button
           asChild
-          className="w-full text-white shadow-sm transition-all hover:brightness-110 hover:shadow-md active:scale-[0.98]"
+          size="sm"
+          className="h-8 w-full text-xs text-white shadow-sm transition-all hover:brightness-110 hover:shadow-md active:scale-[0.98]"
           style={{
             backgroundImage: `linear-gradient(135deg, ${c.dot}, color-mix(in srgb, ${c.dot} 72%, black))`,
           }}
         >
           <Link to="/chat" search={{ model: m.name }}>
-            <Sparkles className="h-4 w-4" />
+            <Sparkles className="h-3.5 w-3.5" />
             Open in Playground
           </Link>
         </Button>
         <div className="grid grid-cols-2 gap-2">
-          <Button asChild variant="outline" size="sm" className="w-full">
+          <Button asChild variant="outline" size="sm" className="h-8 w-full text-xs">
             <a
               href={brand.url}
               target="_blank"
               rel="noreferrer"
               aria-label={`View ${m.name} on Ollama`}
             >
-              <ExternalLink className="h-4 w-4" />
+              <ExternalLink className="h-3.5 w-3.5" />
               Ollama
             </a>
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="w-full"
+            className="h-8 w-full text-xs"
             onClick={copyName}
           >
             {copied ? (
-              <Check className="h-4 w-4 text-emerald-500" />
+              <Check className="h-3.5 w-3.5 text-emerald-500" />
             ) : (
-              <Copy className="h-4 w-4" />
+              <Copy className="h-3.5 w-3.5" />
             )}
             {copied ? 'Copied' : 'Copy name'}
           </Button>
