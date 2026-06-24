@@ -1,8 +1,11 @@
 # Deployment Guide
 
-Step-by-step instructions to deploy the **SLM (Ollama) stack** — locally with
-Docker Compose and to the cloud with **Azure Container Instances (ACI)** — plus
-the interactive **showcase UI**.
+A detailed, step-by-step guide to deploying the **full stack** — the React
+frontend (model playground, AI chat, 16 mini-apps, CRM and monitoring), the
+**Ollama** small-language-model server, the **Temporal** workflow engine, the
+**Supabase** Postgres database, the **CRM API**, **Mailpit**, and the static
+**showcase UI** — locally with Docker Compose, and deploying the SLM to **Azure
+Container Instances (ACI)**.
 
 For architecture, models, and API details, see [SLM.md](./SLM.md).
 
@@ -10,14 +13,17 @@ For architecture, models, and API details, see [SLM.md](./SLM.md).
 
 ## Table of contents
 - [Prerequisites](#prerequisites)
+- [Service map](#service-map)
 - [1. Clone the repository](#1-clone-the-repository)
-- [2. Deploy locally with Docker](#2-deploy-locally-with-docker)
-- [3. Verify the local SLM](#3-verify-the-local-slm)
-- [4. Open the showcase UI](#4-open-the-showcase-ui)
-- [5. Add or switch models](#5-add-or-switch-models)
-- [6. Deploy to Azure (ACI)](#6-deploy-to-azure-aci)
-- [7. Wire the showcase to Azure](#7-wire-the-showcase-to-azure)
-- [8. Tear down](#8-tear-down)
+- [2. Configure environment](#2-configure-environment)
+- [3. Deploy the full stack locally](#3-deploy-the-full-stack-locally)
+- [4. Verify each service](#4-verify-each-service)
+- [5. Open the apps](#5-open-the-apps)
+- [6. Add or switch models](#6-add-or-switch-models)
+- [7. Deploy to Azure (ACI)](#7-deploy-to-azure-aci)
+- [8. Use the Azure endpoint from the app](#8-use-the-azure-endpoint-from-the-app)
+- [9. Rebuilding after code changes](#9-rebuilding-after-code-changes)
+- [10. Tear down](#10-tear-down)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -28,12 +34,38 @@ For architecture, models, and API details, see [SLM.md](./SLM.md).
 |------|---------------|----------|-------|
 | Docker Desktop / Engine | 24+ | Local containers | `docker --version` |
 | Docker Compose | v2 | Orchestration | `docker compose version` |
-| Azure CLI | 2.50+ | Cloud deployment | `az version` |
-| Bicep | bundled with Azure CLI | IaC templates | `az bicep version` |
+| `make` (optional) | any | Lifecycle shortcuts | `make --version` |
+| Git | 2.0+ | Clone the repo | `git --version` |
+| Azure CLI (optional) | 2.50+ | Cloud deployment | `az version` |
+| Bicep (optional) | bundled with Azure CLI | IaC templates | `az bicep version` |
 | GitHub CLI (optional) | 2.0+ | Repo management | `gh --version` |
 
-- An **Azure subscription** with rights to create resource groups and Container Instances.
-- ~4 GB free RAM for the default model on CPU (more for larger models).
+- An **Azure subscription** with rights to create resource groups and Container Instances (cloud deploy only).
+- **~6 GB free RAM** to comfortably run the full stack plus the default model on CPU; more for larger Phi/Gemma/Llama models.
+- The host ports listed in the [service map](#service-map) must be free.
+
+---
+
+## Service map
+
+The full stack starts the following containers. Confirm these host ports are
+available before deploying.
+
+| Service | Container | Host URL / Port | Purpose |
+|---------|-----------|-----------------|---------|
+| Frontend | `frontend` | http://localhost:3000 | React app: playground, chat, all apps |
+| Ollama | `ollama` | http://localhost:11434 | Local model server (`OLLAMA_ORIGINS=*`) |
+| Model pull | `ollama-pull` | one-shot job | Downloads the default model on first boot |
+| CRM API | `crm-web` | http://localhost:8096 | FastAPI for the CRM app (`/api/health`) |
+| Temporal server | `temporal` | localhost:7234 (gRPC) | Workflow engine |
+| Temporal UI | `temporal-ui` | http://localhost:8080 | Workflow dashboard |
+| Temporal worker | `temporal-worker` | — | Runs CRM workflows + activities |
+| Temporal DB | `temporal-db` | localhost:5433 | Temporal's own Postgres |
+| Supabase Postgres | `supabase-db` | localhost:55432 | App database (CRM data) |
+| Mailpit | `mailpit` | http://localhost:8025 (SMTP `:1025`) | Captures outgoing email |
+| Mailer | `mailer` | http://localhost:8200 | Mailer service |
+| Showcase | `showcase` | http://localhost:8090 | Static SLM showcase (`/slm.html`) |
+| Chess / game | `game-web` | http://localhost:8095 | Demo game app |
 
 ---
 
@@ -46,47 +78,69 @@ cd local-slm-playground
 
 ---
 
-## 2. Deploy locally with Docker
+## 2. Configure environment
 
-The SLM ships as part of the project's `docker-compose.yml`. To start **only**
-the SLM services (Ollama + model pull + showcase):
-
-```bash
-docker compose up -d ollama ollama-pull showcase
-```
-
-This will:
-
-1. Start the **`ollama`** server on `http://localhost:11434`
-   (`OLLAMA_ORIGINS=*` lets the browser call it directly in dev).
-2. Run the one-shot **`ollama-pull`** job to download the default model
-   `qwen2.5:0.5b` (~397 MB) into the shared `ollama-data` volume.
-3. Start the **`showcase`** nginx site on `http://localhost:8090`.
-
-> To start the full stack (Temporal, Supabase, mailer, frontend, SLM), run
-> `docker compose up -d`.
-
-Watch the model download finish:
+Copy the environment defaults. The provided values work out of the box for local
+development:
 
 ```bash
-docker compose logs -f ollama-pull
+cp .env.example .env
 ```
 
-When you see `success`, the model is ready.
+Key variables (override only if you need to):
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `OLLAMA_ORIGINS` | `*` | Lets the browser call Ollama directly in dev |
+| `VITE_CRM_URL` | `http://localhost:8096` | Frontend → CRM API base URL |
+| `VITE_OLLAMA_AZURE_URL` | _(empty)_ | Optional default Azure model endpoint |
 
 ---
 
-## 3. Verify the local SLM
+## 3. Deploy the full stack locally
 
-List installed models:
+Start every service in the background:
+
+```bash
+docker compose up -d
+# or, using the Makefile wrapper:
+make up
+# add live-reload mounts for frontend/worker code:
+USE_DEV=1 make up
+```
+
+This builds the images on first run and starts all containers. The one-shot
+**`ollama-pull`** job downloads the default model `qwen2.5:0.5b` (~397 MB) into
+the shared `ollama-data` volume.
+
+Watch the initial model download finish:
+
+```bash
+docker compose logs -f ollama-pull   # wait for "success", then Ctrl-C
+```
+
+> **SLM only:** to start just the model services (server + default-model pull +
+> showcase) without Temporal/Supabase/CRM, run:
+> ```bash
+> docker compose up -d ollama ollama-pull showcase
+> ```
+
+---
+
+## 4. Verify each service
+
+Confirm everything is healthy before using the apps.
+
+**All containers up:**
+
+```bash
+docker compose ps      # every service should show "Up" / "healthy"
+```
+
+**Ollama (models + a test prompt):**
 
 ```bash
 docker exec ollama ollama list
-```
-
-Send a test prompt to the API:
-
-```bash
 curl http://localhost:11434/api/generate -d '{
   "model": "qwen2.5:0.5b",
   "prompt": "Say hello in one short sentence.",
@@ -94,28 +148,49 @@ curl http://localhost:11434/api/generate -d '{
 }'
 ```
 
-You should receive a JSON response containing a `"response"` field with the
-model's reply.
+You should get JSON containing a `"response"` field with the model's reply.
+
+**CRM API + its dependencies (Temporal + Supabase):**
+
+```bash
+curl http://localhost:8096/api/health
+```
+
+This returns the overall status plus per-dependency results for Temporal and the
+Supabase database (including the current contact count).
+
+**Temporal UI:** open http://localhost:8080 — you should see the default
+namespace and (after creating CRM leads) running `CrmLeadWorkflow` executions.
+
+**One-glance check:** open the **Monitoring** app at
+http://localhost:3000/apps/monitor — it shows live status and latency for Ollama,
+CRM API, Frontend, Temporal, Mailpit and Supabase DB, and should report every
+service operational.
 
 ---
 
-## 4. Open the showcase UI
+## 5. Open the apps
 
-Open the interactive page in a browser:
+Open the frontend at **http://localhost:3000** and pick an app from the left
+sidebar:
 
-```
-http://localhost:8090/slm.html
-```
+1. **Local Models Playground** (`/`) — browse every installed model.
+2. **AI Chat** (`/chat`) — streaming chat; pick a model from the dropdown.
+3. **Text & code tools** (`/apps/...`) — Summarizer, Translator, Code Reviewer,
+   Data Extractor, Email Writer, Proofreader, Tone Rewriter, Brainstormer,
+   Explainer, SQL Generator, JSON Builder, Azure Architecture Advisor,
+   Polymarket and Kalshi analysts.
+4. **CRM (Sales)** (`/apps/crm`) — add a lead (starts a durable Temporal
+   workflow persisted to Supabase), then drive the pipeline with
+   Advance / Mark won / Disqualify and use the AI assistant.
+5. **Monitoring** (`/apps/monitor`) — service health and per-model token usage.
 
-From the UI you can:
-
-- Pick the **Endpoint** (Local `localhost:11434` or your Azure ACI URL).
-- Pick the **Model** from the dropdown (auto-populated from `/api/tags`).
-- Chat with the model with streamed responses.
+The static **showcase** is also available at http://localhost:8090/slm.html with
+its own Endpoint/Model dropdowns.
 
 ---
 
-## 5. Add or switch models
+## 6. Add or switch models
 
 Pull additional models into the running container:
 
@@ -151,7 +226,7 @@ to document a newly pulled model.
 
 ---
 
-## 6. Deploy to Azure (ACI)
+## 7. Deploy to Azure (ACI)
 
 The infrastructure is defined as Bicep in `infra/azure/`. The container pulls
 **one or more** models on startup, so you can deploy the same set you run
@@ -172,23 +247,23 @@ Deploy a custom set of models:
 ```
 
 The script creates the resource group, deploys the template, and prints the
-public **Ollama endpoint URL**. Skip to [section 7](#7-use-the-azure-endpoint-from-the-app)
+public **Ollama endpoint URL**. Skip to [section 8](#8-use-the-azure-endpoint-from-the-app)
 to use it from the app. The manual steps below do the same thing.
 
-### 6a. Sign in and pick a subscription
+### 7a. Sign in and pick a subscription
 
 ```bash
 az login
 az account set --subscription "<your-subscription-id-or-name>"
 ```
 
-### 6b. Create a resource group
+### 7b. Create a resource group
 
 ```bash
 az group create --name rg-slm-ollama --location eastus
 ```
 
-### 6c. Review / adjust parameters
+### 7c. Review / adjust parameters
 
 Edit `infra/azure/main.bicepparam` to change the region, the **list of models**,
 or the container size:
@@ -208,7 +283,7 @@ param cpuCores = 2
 param memoryInGb = 6
 ```
 
-### 6d. (Optional) Validate the template
+### 7d. (Optional) Validate the template
 
 ```bash
 az deployment group validate \
@@ -217,7 +292,7 @@ az deployment group validate \
   --parameters infra/azure/main.bicepparam
 ```
 
-### 6e. Deploy
+### 7e. Deploy
 
 ```bash
 az deployment group create \
@@ -243,7 +318,7 @@ time.
 > some subscriptions disable storage-account key access by org policy. The
 > container re-pulls the models on startup, so it self-heals after any restart.
 
-### 6f. Test the cloud endpoint
+### 7f. Test the cloud endpoint
 
 ```bash
 curl http://<fqdn-from-outputs>:11434/api/generate -d '{
@@ -255,7 +330,7 @@ curl http://<fqdn-from-outputs>:11434/api/generate -d '{
 
 ---
 
-## 7. Use the Azure endpoint from the app
+## 8. Use the Azure endpoint from the app
 
 The playground and all mini-apps can target the Azure deployment at runtime:
 
@@ -281,13 +356,31 @@ docker compose up -d --force-recreate showcase
 
 ---
 
-## 8. Tear down
+## 9. Rebuilding after code changes
+
+The frontend image bakes the source at build time, so code edits require a
+rebuild of the affected service:
+
+| You changed… | Rebuild command |
+|--------------|-----------------|
+| Anything under `frontend/` | `docker compose up -d --build frontend` |
+| `temporal/src/crm_api.py` (CRM API) | `docker compose up -d --build crm-web` |
+| Temporal workflows/activities (`temporal/src/...`) | `docker compose up -d --build temporal-worker` |
+| `showcase/slm.html` | `docker compose build --no-cache showcase && docker compose up -d --force-recreate showcase` |
+| Docs / README only | _no rebuild needed_ |
+
+After a frontend rebuild, wait a few seconds for Vite to come up before
+reloading the browser (navigating too early returns `ERR_EMPTY_RESPONSE`).
+
+---
+
+## 10. Tear down
 
 ### Local
 
 ```bash
 docker compose down            # stop containers
-docker compose down -v         # also remove volumes (deletes downloaded models)
+docker compose down -v         # also remove volumes (deletes models + databases)
 ```
 
 ### Azure
@@ -304,12 +397,23 @@ This removes the container group and all associated resources.
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| Showcase can't reach model | Endpoint URL wrong or CORS | Confirm endpoint, ensure `OLLAMA_ORIGINS=*` is set |
+| `port is already allocated` | A host port (3000, 11434, 8096, 8080, 55432…) is in use | Stop the conflicting process or change the mapping in `docker-compose.yml` |
+| Frontend `ERR_EMPTY_RESPONSE` / blank page | Vite still starting after a build | Wait a few seconds, then reload |
 | `model not found` | Model not pulled yet | `docker exec ollama ollama pull <model>` or wait for boot pull |
+| Chat/app can't reach the model | Endpoint URL wrong or CORS | Confirm the endpoint selector; ensure `OLLAMA_ORIGINS=*` is set |
 | Slow first response | Model loading into memory | Wait; subsequent calls are faster |
-| Azure 404 / no response | Model still downloading on boot | Wait 1–3 min; check `az container logs` |
+| CRM app shows no data / errors | `crm-web`, Temporal or Supabase not up | `docker compose ps`; check `docker compose logs crm-web temporal-worker supabase-db` |
+| `/api/health` reports a dependency down | Temporal or Supabase unhealthy | Inspect that container's logs and restart it |
+| Monitoring app shows a service **down** | That container is unhealthy | `docker compose logs <service>` |
 | Out of memory | Model too large for host/ACI | Use a smaller model or increase `memoryInGb` |
+| Azure 404 / no response | Model still downloading on boot | Wait 1–3 min; check `az container logs` |
 | Showcase shows old content | Stale Docker image | `docker compose build --no-cache showcase && docker compose up -d --force-recreate showcase` |
+
+View logs for any local service:
+
+```bash
+docker compose logs -f <service>     # e.g. frontend, crm-web, temporal-worker, ollama
+```
 
 View Azure container logs:
 
