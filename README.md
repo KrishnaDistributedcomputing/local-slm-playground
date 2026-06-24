@@ -31,6 +31,16 @@ Streaming chat against any locally pulled model, with a model picker, stop contr
 
 ![AI Chat](docs/screenshots/04-chat.png)
 
+### Kalshi-style Prediction Market
+Ask a yes/no question about any future event and the local model prices it as a **Kalshi-style YES/NO contract** — implied probability, YES/NO cent prices, news context, the drivers behind the price and what could move it. Styled after kalshi.com (research and entertainment only — not financial advice).
+
+![Kalshi-style Prediction Market](docs/screenshots/06-kalshi.png)
+
+### Polymarket-style Prediction Market
+Describe a real-world event and the local model returns a **Polymarket-style market** — a single "% chance" with Buy Yes / Buy No for binary questions, or a ranked list of outcomes (each with Yes/No cents) for "who/which" questions, plus volume and the reasoning behind the odds. Styled after polymarket.com (research and entertainment only — not financial advice).
+
+![Polymarket-style Prediction Market](docs/screenshots/07-polymarket.png)
+
 ## Apps
 
 Once the stack is running, open **http://localhost:3000** and pick an app from the left sidebar. Every app runs against the local models — no API keys, no per-token cost, fully private.
@@ -58,8 +68,15 @@ Once the stack is running, open **http://localhost:3000** and pick an app from t
 | **SQL Generator** | `/apps/sql` | Turn a plain-English request into a SQL query. |
 | **JSON Builder** | `/apps/json-builder` | Describe the data you need and get well-formed JSON. |
 | **Azure Architecture Advisor** | `/apps/azure-architecture` | Assess a workload through the Azure Well-Architected Framework. |
-| **Polymarket Analyst** | `/apps/polymarket` | Estimate market odds for a real-world event (research only — not financial advice). |
-| **Kalshi Analyst** | `/apps/kalshi` | Turn an event question into a Kalshi-style YES/NO contract (research only — not financial advice). |
+
+### Prediction markets
+
+Faithful clones of the leading prediction-market exchanges, priced entirely by a local model (research and entertainment only — not financial advice).
+
+| App | Route | What it does |
+| --- | --- | --- |
+| **Kalshi** | `/apps/kalshi` | A kalshi.com-style exchange: turn an event question into a YES/NO contract with cent prices, an implied-probability bar, news context, drivers and catalysts. |
+| **Polymarket** | `/apps/polymarket` | A polymarket.com-style market: a "% chance" donut with Buy Yes / Buy No for binary questions, or a ranked multi-outcome list with per-outcome Yes/No cents, volume and reasoning. |
 
 ### Business apps
 
