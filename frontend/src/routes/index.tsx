@@ -261,22 +261,22 @@ function ModelCard({ model: m }: { model: ModelInfo }) {
 
   return (
     <Card
-      className="group relative flex flex-col gap-4 overflow-hidden p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+      className="group relative flex flex-col gap-3 overflow-hidden p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
       style={{
         boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${c.dot} 16%, transparent)`,
       }}
     >
       {/* Accent glow */}
       <div
-        className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full opacity-60 blur-2xl transition-opacity group-hover:opacity-90"
+        className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full opacity-60 blur-2xl transition-opacity group-hover:opacity-90"
         style={{ background: `color-mix(in srgb, ${c.dot} 22%, transparent)` }}
         aria-hidden
       />
 
       {/* Header */}
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-2.5">
         <span
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl ring-1 ring-inset transition-transform duration-300 group-hover:scale-110"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-lg ring-1 ring-inset transition-transform duration-300 group-hover:scale-110"
           style={{
             backgroundColor: `color-mix(in srgb, ${c.dot} 14%, transparent)`,
             boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${c.dot} 28%, transparent)`,
@@ -286,7 +286,7 @@ function ModelCard({ model: m }: { model: ModelInfo }) {
           {brand.logo}
         </span>
         <div className="min-w-0 flex-1 space-y-0.5">
-          <span className="block break-all font-semibold leading-tight">
+          <span className="block break-all text-sm font-semibold leading-tight">
             {m.name}
           </span>
           <span className="text-xs text-muted-foreground">{brand.vendor}</span>
@@ -320,8 +320,8 @@ function ModelCard({ model: m }: { model: ModelInfo }) {
       </div>
 
       {/* Strengths */}
-      <ul className="space-y-1.5">
-        {profile.strengths.slice(0, 3).map((s) => (
+      <ul className="space-y-1">
+        {profile.strengths.slice(0, 2).map((s) => (
           <li key={s} className="flex items-start gap-2 text-xs text-muted-foreground">
             <Check
               className="mt-0.5 h-3.5 w-3.5 shrink-0"

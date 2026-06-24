@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from temporalio.client import Client
@@ -23,6 +24,15 @@ from .config import settings
 from .workflows.example.crm_workflow import CrmLeadWorkflow
 
 app = FastAPI(title="Mini CRM")
+
+# Allow the local frontend (and other dev origins) to call the CRM API directly.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 _STATIC_DIR = Path(__file__).parent / "static"
 _client: Client | None = None
