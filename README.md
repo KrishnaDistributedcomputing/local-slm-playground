@@ -106,6 +106,129 @@ Common commands:
 - `make logs` — stream all service logs
 - `make logs-temporal` / `make logs-frontend` — targeted logs
 
+## Deployment
+
+End-to-end instructions for running the stack locally with Docker Compose and
+deploying the SLM to **Azure Container Instances (ACI)**. For the full
+step-by-step walkthrough see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md); for SLM
+architecture and the API reference see [docs/SLM.md](docs/SLM.md).
+
+### Prerequisites
+
+| Tool | Version (min) | Used for | Check |
+| --- | --- | --- | --- |
+| Docker Desktop / Engine | 24+ | Local containers | `docker --version` |
+| Docker Compose | v2 | Orchestration | `docker compose version` |
+| `make` | any | Lifecycle shortcuts (optional) | `make --version` |
+| Node | 18+ | Running the frontend outside Docker (optional) | `node --version` |
+| Azure CLI | 2.50+ | Cloud deployment (optional) | `az version` |
+| Bicep | bundled with Azure CLI | IaC templates | `az bicep version` |
+| GitHub CLI | 2.0+ | Repo management (optional) | `gh --version` |
+
+- An **Azure subscription** with rights to create resource groups and Container Instances (only for cloud deploy).
+- **~4 GB free RAM** for the default model on CPU; more for larger Phi/Gemma/Llama models.
+- Ports listed below must be free on the host.
+
+### Service ports
+
+| Service | URL / Port | Purpose |
+| --- | --- | --- |
+| Frontend | http://localhost:3000 | React app (playground, chat, all apps) |
+| Ollama | http://localhost:11434 | Local model server (`OLLAMA_ORIGINS=*`) |
+| CRM API | http://localhost:8096 | FastAPI for the CRM app (`/api/health`) |
+| Showcase | http://localhost:8090 | Static SLM showcase (`/slm.html`) |
+| Temporal UI | http://localhost:8080 | Workflow dashboard |
+| Temporal gRPC | localhost:7234 | Worker/client endpoint |
+| Supabase Postgres | localhost:55432 | App database |
+| Mailpit | http://localhost:8025 | Email UI (SMTP on `:1025`) |
+| Mailer | http://localhost:8200 | Mailer service |
+| Chess / game-web | http://localhost:8095 | Demo game app |
+
+### 1. Local deployment (Docker)
+
+```bash
+cp .env.example .env          # copy environment defaults
+docker compose up -d          # start the full stack
+# or: make up                 # (add USE_DEV=1 for live-reload mounts)
+```
+
+Start only the SLM services (server + default model pull + showcase):
+
+```bash
+docker compose up -d ollama ollama-pull showcase
+docker compose logs -f ollama-pull   # wait for "success" — model is ready
+```
+
+### 2. Verify
+
+```bash
+docker compose ps                     # all services Up / healthy
+docker exec ollama ollama list        # installed models
+curl http://localhost:11434/api/generate -d '{
+  "model": "qwen2.5:0.5b",
+  "prompt": "Say hello in one short sentence.",
+  "stream": false
+}'
+curl http://localhost:8096/api/health # CRM API + Temporal + Supabase status
+```
+
+Then open the app at **http://localhost:3000** and the **Monitoring** app
+(`/apps/monitor`) to confirm every service is reporting healthy.
+
+### 3. Add or switch models
+
+```bash
+docker exec ollama ollama pull phi4-mini:latest
+docker exec ollama ollama pull gemma2:2b
+```
+
+New models appear automatically in the model pickers and the gallery.
+
+### 4. Deploy the SLM to Azure (ACI)
+
+```powershell
+az login
+./scripts/deploy-azure.ps1                                   # default model set
+# custom set:
+./scripts/deploy-azure.ps1 -Models 'qwen2.5:0.5b','llama3.2:1b'
+```
+
+The script creates the resource group, deploys the Bicep template under
+`infra/azure/`, and prints the public **Ollama endpoint URL**. In the app's
+**header endpoint selector**, choose **+ Add Azure endpoint…** and paste
+`http://<fqdn>:11434` to point the playground and every app at the cloud
+deployment.
+
+### 5. Rebuilding after changes
+
+- **Frontend** changes (anything under `frontend/`): `docker compose up -d --build frontend`
+- **CRM API** changes (`temporal/src/crm_api.py`): `docker compose up -d --build crm-web`
+- **Showcase** changes: `docker compose build --no-cache showcase && docker compose up -d --force-recreate showcase`
+- **Docs / README only:** no rebuild needed.
+
+### 6. Tear down
+
+```bash
+docker compose down                      # stop containers
+docker compose down -v                   # also remove volumes (deletes pulled models + DB)
+az group delete --name rg-slm-ollama --yes --no-wait   # remove Azure resources
+```
+
+### Troubleshooting
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `port is already allocated` | A host port (3000, 11434, 8096, 8080, 55432…) is in use | Stop the conflicting process or change the mapping in `docker-compose.yml` |
+| Frontend shows `ERR_EMPTY_RESPONSE` / blank | Vite still starting after a rebuild | Wait a few seconds for the container to be ready, then reload |
+| `model not found` | Model not pulled yet | `docker exec ollama ollama pull <model>` or wait for the boot pull |
+| Chat/app can't reach the model | Wrong endpoint or CORS | Confirm the endpoint selector; ensure `OLLAMA_ORIGINS=*` on the `ollama` service |
+| Slow first response | Model loading into memory | Wait; subsequent calls are faster |
+| CRM app shows no data / errors | `crm-web`, Temporal or Supabase not up | `docker compose ps`; check `docker compose logs crm-web temporal-worker supabase-db` |
+| Monitoring shows a service **down** | That container is unhealthy | Inspect its logs: `docker compose logs <service>` |
+| Out of memory | Model too large for host/ACI | Use a smaller model or raise `memoryInGb` in `main.bicepparam` |
+| Azure 404 / no response | Models still downloading on boot | Wait 1–3 min; `az container logs --resource-group rg-slm-ollama --name slm-ollama` |
+| Showcase shows old content | Stale Docker image | `docker compose build --no-cache showcase && docker compose up -d --force-recreate showcase` |
+
 ## Local & Cloud SLM (Ollama)
 A GPT‑style small language model runs locally in Docker and can be deployed to Azure.
 - **Server:** `ollama` service on http://localhost:11434 (default model `qwen2.5:0.5b`; also `llama3.2:1b`, `gemma2:2b`)
