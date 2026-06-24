@@ -303,13 +303,13 @@ function ChatPage() {
               </div>
               <div
                 className={cn(
-                  'flex max-w-[80%] flex-col gap-1',
+                  'flex min-w-0 max-w-[80%] flex-col gap-1',
                   m.role === 'user' ? 'items-end' : 'items-start',
                 )}
               >
                 <div
                   className={cn(
-                    'whitespace-pre-wrap rounded-lg px-3 py-2 text-sm',
+                    'whitespace-pre-wrap break-words rounded-lg px-3 py-2 text-sm',
                     m.role === 'user'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted',

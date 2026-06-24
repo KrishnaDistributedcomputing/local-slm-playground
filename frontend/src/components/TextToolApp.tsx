@@ -244,7 +244,7 @@ export function TextToolApp({
               </button>
             )}
           </div>
-          <div className="min-h-[260px] flex-1 overflow-auto whitespace-pre-wrap rounded-xl bg-muted/40 p-4 text-sm leading-relaxed ring-1 ring-inset ring-border/40">
+          <div className="min-h-[260px] flex-1 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-muted/40 p-4 text-sm leading-relaxed ring-1 ring-inset ring-border/40">
             {output || (
               <span className="text-muted-foreground">
                 Output will appear here…

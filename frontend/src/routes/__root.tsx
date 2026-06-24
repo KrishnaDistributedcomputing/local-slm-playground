@@ -51,7 +51,7 @@ function RootComponent() {
       <Header />
       <div className="flex">
         <Sidebar />
-        <main className="flex-1 p-6">
+        <main className="min-w-0 flex-1 p-6">
           <Outlet />
         </main>
       </div>
@@ -64,7 +64,7 @@ function RootComponent() {
 
 function Header() {
   return (
-    <header className="h-16 border-b bg-gradient-to-r from-indigo-50 via-card to-violet-50 flex items-center justify-between px-6">
+    <header className="sticky top-0 z-30 h-16 border-b bg-gradient-to-r from-indigo-50 via-card to-violet-50 flex items-center justify-between px-6">
       <h1 className="flex items-center gap-2 text-xl font-bold">
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-sm">
           <Sparkles className="h-4 w-4" />
@@ -126,7 +126,7 @@ function EndpointSelector() {
 
 function Sidebar() {
   return (
-    <aside className="w-64 border-r bg-card min-h-[calc(100vh-4rem)]">
+    <aside className="sticky top-16 h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r bg-card">
       <nav className="p-4 space-y-1.5">
         {PRIMARY_NAV.map((item) => (
           <NavItem key={item.to} {...item} />
