@@ -26,6 +26,62 @@ Streaming chat against any locally pulled model, with a model picker, stop contr
 
 ![AI Chat](docs/screenshots/04-chat.png)
 
+## Apps
+
+Once the stack is running, open **http://localhost:3000** and pick an app from the left sidebar. Every app runs against the local models — no API keys, no per-token cost, fully private.
+
+### Core
+
+| App | Route | What it does |
+| --- | --- | --- |
+| **Local Models Playground** | `/` | Gallery of every model installed locally — parameters, on-disk size, quantization and "best for" guidance, grouped with Microsoft Phi first. |
+| **AI Chat** | `/chat` | Streaming chat against any installed model, with a model picker, stop control, and copy/error states. |
+
+### Text & code tools
+
+| App | Route | What it does |
+| --- | --- | --- |
+| **Summarizer** | `/apps/summarizer` | Condense long text into clear bullet points. |
+| **Translator** | `/apps/translator` | Translate text into another language. |
+| **Code Reviewer** | `/apps/code-reviewer` | Review code for bugs, edge cases, security issues and improvements. |
+| **Data Extractor** | `/apps/extractor` | Turn unstructured text (emails, invoices, notes) into structured JSON. |
+| **Email Writer** | `/apps/email-writer` | Turn a few notes into a polished email. |
+| **Proofreader** | `/apps/proofreader` | Fix grammar, spelling and punctuation. |
+| **Tone Rewriter** | `/apps/rewriter` | Rewrite text in a different tone or style. |
+| **Brainstormer** | `/apps/brainstorm` | Generate fresh ideas around any topic. |
+| **Explainer** | `/apps/explain` | Explain any concept at the level you choose. |
+| **SQL Generator** | `/apps/sql` | Turn a plain-English request into a SQL query. |
+| **JSON Builder** | `/apps/json-builder` | Describe the data you need and get well-formed JSON. |
+| **Azure Architecture Advisor** | `/apps/azure-architecture` | Assess a workload through the Azure Well-Architected Framework. |
+| **Polymarket Analyst** | `/apps/polymarket` | Estimate market odds for a real-world event (research only — not financial advice). |
+| **Kalshi Analyst** | `/apps/kalshi` | Turn an event question into a Kalshi-style YES/NO contract (research only — not financial advice). |
+
+### Full-stack apps (Temporal + Supabase)
+
+| App | Route | What it does |
+| --- | --- | --- |
+| **CRM (Sales Force Automation)** | `/apps/crm` | A durable sales pipeline where each lead is a long-running **Temporal** workflow persisted to **Supabase**, with the local model layered on top for outreach drafting, next-best-action, deal summaries and BANT qualification. |
+| **System Monitoring** | `/apps/monitor` | Live health for every service (Ollama, CRM API, Frontend, Temporal, Mailpit, Supabase DB) plus cumulative **token usage** captured from every model request, broken down per model. |
+
+## How to use
+
+### Text & code tools
+1. Open the app from the left sidebar.
+2. Choose a model from the **model dropdown** (defaults to `qwen2.5:0.5b`; larger Phi/Gemma/Llama models give stronger results).
+3. Paste or type your input in the left panel.
+4. Click the action button (e.g. **Summarize**, **Translate**, **Review**) — the response streams in on the right.
+5. Use **Stop** to cancel, **Copy** to grab the output, then tweak the input and re-run.
+
+### CRM (full-stack)
+1. Open **CRM (Sales)**. The CRM API (`crm-web`), Temporal and Supabase start automatically with `docker compose up -d`.
+2. Add a lead in **New lead** → this starts a durable `CrmLeadWorkflow` in Temporal, persisted to Supabase.
+3. Click a lead to open it, then drive the pipeline with **Advance / Mark won / Disqualify** (these are Temporal signals) — `New → Contacted → Qualified → Proposal → Won`.
+4. Use the **AI assistant** (Draft outreach email, Next best action, Summarize deal, Qualify BANT) and **Save to timeline** to write the result back to the lead's durable history.
+
+### System Monitoring
+1. Open **Monitoring** to see every service's status and latency; toggle **Auto-refresh** for 10s polling.
+2. **Token usage** accrues automatically as you use any app — totals, per-model prompt/completion split and throughput. Use **Reset** to clear local counters.
+
 ## Prerequisites
 - Docker Desktop with Compose v2
 - `make` (comes with macOS/Linux; install via Xcode CLT on macOS)
