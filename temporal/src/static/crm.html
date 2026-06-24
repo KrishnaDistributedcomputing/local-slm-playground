@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini CRM — Temporal + Supabase</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #151c33;
+      --panel-2: #1d2742;
+      --text: #e8ecf6;
+      --muted: #93a0c0;
+      --accent: #6ea8fe;
+      --good: #4ade80;
+      --bad: #f87171;
+      --warn: #fbbf24;
+      --border: #283556;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(1200px 600px at 70% -10%, #1a2444 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 20px 60px; }
+    h1 { font-size: 26px; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+    .sub a { color: var(--accent); text-decoration: none; }
+    .layout { display: grid; grid-template-columns: 340px 1fr; gap: 22px; align-items: start; }
+    @media (max-width: 880px) { .layout { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px; margin-bottom: 18px;
+    }
+    .card h2 { font-size: 13px; margin: 0 0 12px; color: var(--accent); letter-spacing: .4px; text-transform: uppercase; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 5px; }
+    input, select, textarea {
+      width: 100%; padding: 9px 11px; border-radius: 8px; font-size: 14px;
+      background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    button {
+      margin-top: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer;
+      background: var(--accent); color: #07142e; font-weight: 600; font-size: 14px; border: none;
+    }
+    button.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+    button.good { background: var(--good); color: #06281a; }
+    button.bad { background: var(--bad); color: #2a0a0a; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .row > * { flex: 1; }
+
+    .pipeline { display: flex; flex-direction: column; gap: 14px; }
+    .stage-col h3 {
+      font-size: 12px; color: var(--muted); margin: 0 0 8px; text-transform: uppercase;
+      letter-spacing: .3px; display: flex; justify-content: space-between;
+    }
+    .lead {
+      background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+      padding: 11px 12px; margin-bottom: 8px; cursor: pointer; transition: border-color .15s;
+    }
+    .lead:hover { border-color: var(--accent); }
+    .lead.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .lead .nm { font-weight: 600; font-size: 14px; }
+    .lead .co { font-size: 12px; color: var(--muted); }
+    .lead .val { font-size: 12px; color: var(--good); margin-top: 2px; }
+    .badge {
+      display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px;
+      border: 1px solid var(--border); color: var(--muted);
+    }
+    .badge.won { color: var(--good); border-color: var(--good); }
+    .badge.lost { color: var(--bad); border-color: var(--bad); }
+
+    .steps { display: flex; gap: 6px; margin: 6px 0 14px; }
+    .step {
+      flex: 1; text-align: center; font-size: 11px; padding: 7px 4px; border-radius: 7px;
+      background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+    }
+    .step.done { background: rgba(110,168,254,.16); border-color: var(--accent); color: var(--text); }
+    .step.current { background: var(--accent); border-color: var(--accent); color: #07142e; font-weight: 700; }
+
+    .kv { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+    .kv .k { color: var(--muted); }
+
+    .timeline { list-style: none; padding: 0; margin: 10px 0 0; }
+    .timeline li { font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+    .timeline .tk {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .3px; padding: 2px 7px;
+      border-radius: 999px; border: 1px solid var(--border); color: var(--muted); height: fit-content; white-space: nowrap;
+    }
+    .tk.created { color: var(--accent); border-color: var(--accent); }
+    .tk.stage   { color: var(--warn);   border-color: var(--warn); }
+    .tk.note    { color: var(--text); }
+    .tk.reminder{ color: var(--warn);  border-color: var(--warn); }
+    .tk.won     { color: var(--good);  border-color: var(--good); }
+    .tk.lost    { color: var(--bad);   border-color: var(--bad); }
+    .timeline .td { color: var(--muted); font-size: 11px; margin-left: auto; white-space: nowrap; }
+    .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+    .err { color: var(--bad); font-size: 13px; margin-top: 8px; }
+    .muted { color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Mini CRM</h1>
+    <p class="sub">
+      Every lead is a durable <strong>Temporal</strong> workflow, persisted to <strong>Supabase</strong>.
+      Stages, notes and automatic follow-up reminders are all driven by the workflow.
+      &nbsp;·&nbsp; <a href="http://localhost:8080" target="_blank" rel="noreferrer">Temporal UI</a>
+    </p>
+
+    <div class="layout">
+      <!-- LEFT: create + pipeline -->
+      <div>
+        <div class="card">
+          <h2>New lead</h2>
+          <label for="name">Name *</label>
+          <input id="name" placeholder="Jane Doe" />
+          <label for="company">Company</label>
+          <input id="company" placeholder="Acme Inc." />
+          <div class="row">
+            <div>
+              <label for="email">Email</label>
+              <input id="email" placeholder="jane@acme.com" />
+            </div>
+            <div>
+              <label for="value">Deal value ($)</label>
+              <input id="value" type="number" min="0" step="100" placeholder="5000" />
+            </div>
+          </div>
+          <label for="owner">Owner</label>
+          <input id="owner" placeholder="Sales rep" />
+          <button id="createBtn">Add lead</button>
+          <div id="createErr" class="err"></div>
+        </div>
+
+        <div class="card">
+          <h2>Pipeline</h2>
+          <div id="pipeline" class="pipeline"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: detail -->
+      <div class="card" id="detailCard">
+        <div id="detailEmpty" class="empty">Select a lead to view its workflow, or add one.</div>
+        <div id="detail" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let selectedId = null;
+    let pollTimer = null;
+
+    async function api(path, opts) {
+      const res = await fetch(path, {
+        headers: { "Content-Type": "application/json" },
+        ...opts,
+      });
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        throw new Error(`${res.status} ${t}`);
+      }
+      return res.json();
+    }
+
+    function money(v) {
+      return "$" + Number(v || 0).toLocaleString();
+    }
+
+    function when(iso) {
+      try { return new Date(iso).toLocaleString(); } catch { return iso; }
+    }
+
+    async function loadPipeline() {
+      const { rows } = await api("/api/contacts");
+      const STAGES = ["New", "Contacted", "Qualified", "Proposal", "Won"];
+      const groups = {};
+      for (const s of STAGES) groups[s] = [];
+      const lost = [];
+      for (const r of rows) {
+        if (r.status === "lost") lost.push(r);
+        else (groups[r.stage] || (groups[r.stage] = [])).push(r);
+      }
+      const el = $("pipeline");
+      el.innerHTML = "";
+      const render = (title, list) => {
+        const col = document.createElement("div");
+        col.className = "stage-col";
+        col.innerHTML = `<h3><span>${title}</span><span>${list.length}</span></h3>`;
+        if (!list.length) {
+          col.insertAdjacentHTML("beforeend", `<div class="empty">—</div>`);
+        }
+        for (const r of list) {
+          const div = document.createElement("div");
+          div.className = "lead" + (r.id === selectedId ? " active" : "");
+          div.innerHTML = `
+            <div class="nm">${r.name}</div>
+            <div class="co">${r.company || "—"}</div>
+            <div class="val">${money(r.value)}</div>`;
+          div.onclick = () => select(r.id);
+          col.appendChild(div);
+        }
+        el.appendChild(col);
+      };
+      for (const s of STAGES) render(s, groups[s]);
+      if (lost.length) render("Lost", lost);
+    }
+
+    async function select(id) {
+      selectedId = id;
+      await refreshDetail();
+      await loadPipeline();
+    }
+
+    async function refreshDetail() {
+      if (!selectedId) return;
+      let data;
+      try {
+        data = await api(`/api/contacts/${selectedId}`);
+      } catch (e) {
+        $("detail").innerHTML = `<div class="err">${e.message}</div>`;
+        return;
+      }
+      const s = data.state;
+      const tl = data.timeline || [];
+      $("detailEmpty").style.display = "none";
+      const d = $("detail");
+      d.style.display = "block";
+
+      const steps = s.stages.map((st, i) => {
+        let cls = "step";
+        if (s.status === "won" && st === "Won") cls += " current";
+        else if (i < s.stage_index) cls += " done";
+        else if (i === s.stage_index) cls += " current";
+        return `<div class="${cls}">${st}</div>`;
+      }).join("");
+
+      const statusBadge = s.status === "won"
+        ? `<span class="badge won">Won</span>`
+        : s.status === "lost"
+        ? `<span class="badge lost">Lost</span>`
+        : `<span class="badge">${s.stage}</span>`;
+
+      const items = tl.map((t) => `
+        <li>
+          <span class="tk ${t.kind}">${t.kind}</span>
+          <span>${t.detail}</span>
+          <span class="td">${when(t.created_at)}</span>
+        </li>`).join("");
+
+      const closed = s.over;
+      d.innerHTML = `
+        <h2>${s.name} ${statusBadge}</h2>
+        <div class="steps">${steps}</div>
+        <div class="kv"><span class="k">Company</span><span>${s.company || "—"}</span></div>
+        <div class="kv"><span class="k">Email</span><span>${s.email || "—"}</span></div>
+        <div class="kv"><span class="k">Owner</span><span>${s.owner || "—"}</span></div>
+        <div class="kv"><span class="k">Deal value</span><span>${money(s.value)}</span></div>
+        <div class="kv"><span class="k">Workflow ID</span><span class="muted">${s.id}</span></div>
+
+        <div class="row" style="margin-top:14px;">
+          <button id="advanceBtn" ${closed ? "disabled" : ""}>Advance stage</button>
+          <button id="winBtn" class="good" ${closed ? "disabled" : ""}>Mark won</button>
+          <button id="loseBtn" class="bad" ${closed ? "disabled" : ""}>Disqualify</button>
+        </div>
+
+        <label for="noteText" style="margin-top:16px;">Add note</label>
+        <textarea id="noteText" rows="2" ${closed ? "disabled" : ""} placeholder="Logged a call, sent proposal…"></textarea>
+        <button id="noteBtn" class="secondary" ${closed ? "disabled" : ""}>Log note</button>
+        <div id="actErr" class="err"></div>
+
+        <h2 style="margin-top:20px;">Activity timeline</h2>
+        <ul class="timeline">${items || '<li class="empty">No activity yet.</li>'}</ul>
+      `;
+
+      if (!closed) {
+        $("advanceBtn").onclick = () => act(`/api/contacts/${selectedId}/advance`, {});
+        $("winBtn").onclick = () => act(`/api/contacts/${selectedId}/win`, {});
+        $("loseBtn").onclick = () => {
+          const reason = prompt("Reason for disqualifying?") || "";
+          act(`/api/contacts/${selectedId}/disqualify`, { reason });
+        };
+        $("noteBtn").onclick = () => {
+          const text = $("noteText").value.trim();
+          if (!text) return;
+          act(`/api/contacts/${selectedId}/note`, { text });
+        };
+      }
+    }
+
+    async function act(path, body) {
+      try {
+        await api(path, { method: "POST", body: JSON.stringify(body) });
+        await refreshDetail();
+        await loadPipeline();
+      } catch (e) {
+        $("actErr").textContent = e.message;
+      }
+    }
+
+    $("createBtn").onclick = async () => {
+      $("createErr").textContent = "";
+      const name = $("name").value.trim();
+      if (!name) { $("createErr").textContent = "Name is required."; return; }
+      const body = {
+        name,
+        email: $("email").value.trim() || null,
+        company: $("company").value.trim() || null,
+        value: parseFloat($("value").value) || 0,
+        owner: $("owner").value.trim() || null,
+      };
+      $("createBtn").disabled = true;
+      try {
+        const { id } = await api("/api/contacts", { method: "POST", body: JSON.stringify(body) });
+        $("name").value = $("email").value = $("company").value = $("value").value = $("owner").value = "";
+        await loadPipeline();
+        await select(id);
+      } catch (e) {
+        $("createErr").textContent = e.message;
+      } finally {
+        $("createBtn").disabled = false;
+      }
+    };
+
+    function startPolling() {
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(async () => {
+        await loadPipeline();
+        if (selectedId) await refreshDetail();
+      }, 4000);
+    }
+
+    loadPipeline().catch((e) => $("createErr").textContent = e.message);
+    startPolling();
+  </script>
+</body>
+</html>

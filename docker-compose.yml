@@ -115,6 +115,28 @@ services:
     ports:
       - "8095:8000"
 
+  crm-web:
+    build: ./temporal
+    container_name: crm-web
+    restart: unless-stopped
+    command: ["uvicorn", "src.crm_api:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      temporal:
+        condition: service_started
+      supabase-db:
+        condition: service_healthy
+    environment:
+      - TEMPORAL_ADDRESS=${TEMPORAL_ADDRESS:-temporal:7233}
+      - TEMPORAL_NAMESPACE=${TEMPORAL_NAMESPACE:-default}
+      - TEMPORAL_TASK_QUEUE=${TEMPORAL_TASK_QUEUE:-main}
+      - SUPABASE_DB_HOST=${SUPABASE_DB_HOST:-supabase-db}
+      - SUPABASE_DB_PORT=${SUPABASE_DB_PORT:-5432}
+      - SUPABASE_DB_USER=${SUPABASE_DB_USER:-supabase}
+      - SUPABASE_DB_PASSWORD=${SUPABASE_DB_PASSWORD:-supabase}
+      - SUPABASE_DB_NAME=${SUPABASE_DB_NAME:-supabase}
+    ports:
+      - "8096:8000"
+
   ollama:
     image: ollama/ollama:latest
     container_name: ollama

@@ -6,10 +6,11 @@ from temporalio.client import Client
 from temporalio.worker import Worker
 
 from .config import settings
-from .activities import supabase_core, notifications, greeting, chess_store
+from .activities import supabase_core, notifications, greeting, chess_store, crm_store
 from .workflows.example.approval_workflow import ApprovalWorkflow
 from .workflows.example.hello_world_workflow import HelloWorldWorkflow
 from .workflows.example.chess_workflow import ChessGameWorkflow
+from .workflows.example.crm_workflow import CrmLeadWorkflow
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ async def main() -> None:
     worker = Worker(
         client,
         task_queue=settings.temporal_task_queue,
-        workflows=[ApprovalWorkflow, HelloWorldWorkflow, ChessGameWorkflow],
+        workflows=[ApprovalWorkflow, HelloWorldWorkflow, ChessGameWorkflow, CrmLeadWorkflow],
         activities=[
             supabase_core.create_entity,
             supabase_core.update_entity_scd2,
@@ -35,6 +36,10 @@ async def main() -> None:
             greeting.compose_greeting,
             chess_store.record_chess_game,
             chess_store.get_recent_games,
+            crm_store.upsert_contact,
+            crm_store.record_activity,
+            crm_store.list_contacts,
+            crm_store.get_activities,
         ],
         activity_executor=activity_executor,
     )
