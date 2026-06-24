@@ -106,6 +106,7 @@ function MonitorApp() {
 
   const summary = summarizeUsage(events);
   const recent = [...events].slice(-12).reverse();
+  const maxModelTokens = Math.max(1, ...summary.byModel.map((m) => m.totalTokens));
   const overall = health?.overall ?? 'down';
   const overallMeta = STATUS_META[overall];
 
@@ -299,15 +300,45 @@ function MonitorApp() {
               </div>
               <div className="divide-y">
                 {summary.byModel.map((m) => (
-                  <div
-                    key={m.model}
-                    className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm"
-                  >
-                    <span className="truncate font-mono text-xs">{m.model}</span>
-                    <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
-                      <span>{fmt(m.requests)} reqs</span>
-                      <span className="font-semibold text-foreground">
-                        {fmt(m.totalTokens)} tok
+                  <div key={m.model} className="space-y-1.5 px-4 py-2.5">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="truncate font-mono text-xs">{m.model}</span>
+                      <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
+                        <span>{fmt(m.requests)} reqs</span>
+                        <span className="font-semibold text-foreground">
+                          {fmt(m.totalTokens)} tok
+                        </span>
+                      </div>
+                    </div>
+                    {/* Prompt vs completion split bar */}
+                    <div
+                      className="flex h-1.5 overflow-hidden rounded-full bg-muted"
+                      style={{ width: `${(m.totalTokens / maxModelTokens) * 100}%` }}
+                      title={`${fmt(m.promptTokens)} prompt + ${fmt(m.completionTokens)} completion`}
+                    >
+                      <span
+                        className="h-full"
+                        style={{
+                          width: `${(m.promptTokens / Math.max(1, m.totalTokens)) * 100}%`,
+                          background: '#0ea5e9',
+                        }}
+                      />
+                      <span
+                        className="h-full"
+                        style={{
+                          width: `${(m.completionTokens / Math.max(1, m.totalTokens)) * 100}%`,
+                          background: '#8b5cf6',
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <span className="h-2 w-2 rounded-full" style={{ background: '#0ea5e9' }} />
+                        {fmt(m.promptTokens)} prompt
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="h-2 w-2 rounded-full" style={{ background: '#8b5cf6' }} />
+                        {fmt(m.completionTokens)} completion
                       </span>
                     </div>
                   </div>
