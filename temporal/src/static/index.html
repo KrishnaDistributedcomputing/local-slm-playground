@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chess — Temporal + Supabase</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #151c33;
+      --panel-2: #1d2742;
+      --text: #e8ecf6;
+      --muted: #93a0c0;
+      --accent: #6ea8fe;
+      --good: #4ade80;
+      --bad: #f87171;
+      --border: #283556;
+      --light: #ebd9b6;
+      --dark: #9c7a4f;
+      --sel: #f6c453;
+      --dot: rgba(110,168,254,.55);
+      --last: rgba(246,196,83,.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(1200px 600px at 70% -10%, #1a2444 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 940px; margin: 0 auto; padding: 36px 20px 60px; }
+    h1 { font-size: 26px; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+    .layout { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px;
+    }
+    .card h2 { font-size: 14px; margin: 0 0 12px; color: var(--accent); letter-spacing: .3px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 0 0 6px; }
+    input {
+      width: 100%; padding: 9px 11px; border-radius: 8px; font-size: 14px;
+      background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+    }
+    input:focus { outline: none; border-color: var(--accent); }
+    select {
+      width: 100%; padding: 9px 11px; border-radius: 8px; font-size: 14px;
+      background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+    }
+    select:focus { outline: none; border-color: var(--accent); }
+    button {
+      margin-top: 12px; width: 100%; padding: 10px 12px; border-radius: 8px; cursor: pointer;
+      background: var(--accent); color: #07142e; font-weight: 600; font-size: 14px; border: none;
+    }
+    button.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .lesson { margin-top: 10px; font-size: 13px; color: var(--muted); line-height: 1.5; min-height: 18px; }
+    .study-controls { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .study-controls .nav { margin-top: 12px; padding: 8px 4px; font-size: 12px; }
+    .study-pos { margin-top: 10px; font-size: 13px; color: var(--muted); text-align: center; }
+    .study-pos b { color: var(--text); }
+    .study-desc { margin-top: 8px; font-size: 13px; color: var(--text); line-height: 1.5; }
+    .study-note {
+      margin-top: 8px; font-size: 13px; line-height: 1.5; color: #fde9b0;
+      background: rgba(246,196,83,.08); border: 1px solid rgba(246,196,83,.35);
+      border-radius: 8px; padding: 9px 11px;
+    }
+    .study-note:empty { display: none; }
+
+    .board {
+      display: grid; grid-template-columns: repeat(8, 56px); grid-template-rows: repeat(8, 56px);
+      border: 3px solid var(--border); border-radius: 8px; overflow: hidden; user-select: none;
+    }
+    @media (max-width: 520px) { .board { grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(8, 40px); } }
+    .sq {
+      display: flex; align-items: center; justify-content: center; position: relative;
+      font-size: 40px; line-height: 1; cursor: pointer;
+    }
+    @media (max-width: 520px) { .sq { font-size: 28px; } }
+    .sq.light { background: var(--light); }
+    .sq.dark { background: var(--dark); }
+    .sq .piece.white { color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,.45); }
+    .sq .piece.black { color: #111; text-shadow: 0 1px 1px rgba(255,255,255,.25); }
+    .sq.sel { box-shadow: inset 0 0 0 4px var(--sel); }
+    .sq.last { background-image: radial-gradient(var(--last), var(--last)); }
+    .sq .dot { position: absolute; width: 30%; height: 30%; border-radius: 50%; background: var(--dot); }
+    .sq .ring { position: absolute; inset: 8%; border-radius: 50%; box-shadow: inset 0 0 0 4px var(--dot); }
+
+    .status { margin-top: 14px; font-size: 14px; }
+    .status .turn { font-weight: 700; }
+    .status .msg { color: var(--muted); }
+    .status .check { color: var(--bad); font-weight: 700; }
+    .status .win { color: var(--good); font-weight: 700; }
+    .moves { margin-top: 12px; font-size: 13px; color: var(--muted); max-height: 110px; overflow:auto; line-height: 1.7; }
+    .moves b { color: var(--text); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; font-size: 11px; }
+    .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--border); font-size: 11px; }
+    .links { margin-top: 18px; font-size: 13px; color: var(--muted); }
+    .links a { color: var(--accent); text-decoration: none; }
+    .right { display: flex; flex-direction: column; gap: 18px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>♟️ Chess</h1>
+    <p class="sub">You play <b>White</b> vs a random-move bot (<b>Black</b>). Moves are Temporal <b>signals</b>, the board comes from a <b>query</b>, and finished games are saved to <b>Supabase</b>. Pawns auto-promote to a queen.</p>
+
+    <div class="layout">
+      <div class="card">
+        <div id="board" class="board"></div>
+        <div class="status">
+          <span class="turn" id="turn">—</span>
+          <span class="msg" id="msg"></span>
+        </div>
+        <div class="moves" id="moves"></div>
+      </div>
+
+      <div class="right">
+        <div class="card">
+          <h2>NEW GAME</h2>
+          <label for="white">Your name (White)</label>
+          <input id="white" value="Player" />
+          <button id="startBtn">Start game</button>
+          <button class="secondary" id="resignBtn" disabled>Resign</button>
+        </div>
+
+        <div class="card">
+          <h2>STUDY CLASSIC GAMES <span class="pill">learn</span></h2>
+          <label for="classic">Pick a famous game</label>
+          <select id="classic">
+            <option value="">— select a game —</option>
+          </select>
+          <div class="lesson" id="lesson"></div>
+          <div class="study-controls">
+            <button class="secondary nav" id="firstBtn" disabled>⏮</button>
+            <button class="secondary nav" id="prevBtn" disabled>◀ Prev</button>
+            <button class="secondary nav" id="playBtn" disabled>▶ Auto</button>
+            <button class="secondary nav" id="nextBtn" disabled>Next ▶</button>
+            <button class="secondary nav" id="lastBtn" disabled>⏭</button>
+          </div>
+          <div class="study-pos" id="studyPos"></div>
+          <div class="study-desc" id="studyDesc"></div>
+          <div class="study-note" id="studyNote"></div>
+        </div>
+
+        <div class="card">
+          <h2>RECENT GAMES <span class="pill">Supabase</span></h2>
+          <table>
+            <thead><tr><th>White</th><th>Black</th><th>Result</th><th>Moves</th></tr></thead>
+            <tbody id="hist"><tr><td colspan="4" style="color:var(--muted)">No games yet.</td></tr></tbody>
+          </table>
+          <button class="secondary" id="refreshBtn">Refresh</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="links">
+      Watch live in the <a href="http://localhost:8080" target="_blank">Temporal UI</a>
+      (workflow IDs start with <code>chess-</code>).
+    </p>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const GLYPH = {
+      K: "♔", Q: "♕", R: "♖", B: "♗", N: "♘", P: "♙",
+      k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟",
+    };
+    let gameId = null;
+    let state = null;
+    let selected = null; // algebraic square e.g. "e2"
+    let busy = false;
+    let studyActive = false;
+    let study = null; // { id, name, plies, idx }
+    let autoTimer = null;
+
+    async function api(path, opts) {
+      const res = await fetch(path, { headers: { "Content-Type": "application/json" }, ...opts });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function fenToGrid(fen) {
+      // returns 8x8 array [row0=rank8 ... row7=rank1][col0=a ... col7=h]
+      const rows = fen.split(" ")[0].split("/");
+      return rows.map((r) => {
+        const out = [];
+        for (const ch of r) {
+          if (/\d/.test(ch)) for (let i = 0; i < +ch; i++) out.push("");
+          else out.push(ch);
+        }
+        return out;
+      });
+    }
+    const sqName = (row, col) => "abcdefgh"[col] + (8 - row);
+
+    function legalTargets(from) {
+      if (!state) return new Set();
+      return new Set(
+        state.legal_moves.filter((m) => m.slice(0, 2) === from).map((m) => m.slice(2, 4))
+      );
+    }
+
+    function render() {
+      const board = $("board");
+      board.innerHTML = "";
+      if (!state) return;
+      const grid = fenToGrid(state.fen);
+      const last = state.last_move;
+      const lastFrom = last ? last.slice(0, 2) : null;
+      const lastTo = last ? last.slice(2, 4) : null;
+      const targets = selected ? legalTargets(selected) : new Set();
+
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const name = sqName(row, col);
+          const piece = grid[row][col];
+          const sq = document.createElement("div");
+          sq.className = "sq " + ((row + col) % 2 === 0 ? "light" : "dark");
+          if (name === selected) sq.classList.add("sel");
+          if (name === lastFrom || name === lastTo) sq.classList.add("last");
+          if (piece) {
+            const span = document.createElement("span");
+            span.className = "piece " + (piece === piece.toUpperCase() ? "white" : "black");
+            span.textContent = GLYPH[piece];
+            sq.appendChild(span);
+          }
+          if (targets.has(name)) {
+            const mark = document.createElement("span");
+            mark.className = piece ? "ring" : "dot";
+            sq.appendChild(mark);
+          }
+          sq.addEventListener("click", () => onSquare(name, piece));
+          board.appendChild(sq);
+        }
+      }
+      renderStatus();
+    }
+
+    function renderStatus() {
+      const turn = $("turn");
+      const msg = $("msg");
+      if (studyActive && study) {
+        const p = study.plies[study.idx];
+        if (study.idx === 0) {
+          turn.innerHTML = `<span class="win">Studying: starting position</span>`;
+        } else {
+          const mn = p.move_no;
+          const dots = p.side === "white" ? "." : "...";
+          turn.innerHTML = `<span class="win">Studying — ${mn}${dots} ${p.san}</span>`;
+        }
+        msg.textContent = "";
+        const sm = state.san_moves || [];
+        let s = "";
+        for (let i = 0; i < sm.length; i += 2) {
+          const n = i / 2 + 1;
+          s += `${n}. <b>${sm[i]}</b> ${sm[i + 1] || ""} `;
+        }
+        $("moves").innerHTML = s;
+        return;
+      }
+      if (state.over) {
+        let txt = "Game over";
+        if (state.status === "checkmate") txt = `Checkmate — ${state.winner} wins`;
+        else if (state.status === "stalemate") txt = "Stalemate — draw";
+        else if (state.status === "draw") txt = "Draw";
+        else if (state.status === "resigned") txt = "You resigned — Black wins";
+        turn.innerHTML = `<span class="win">${txt} (${state.result || ""})</span>`;
+        msg.textContent = "";
+      } else {
+        turn.textContent = state.turn === "white" ? "Your move (White)" : "Bot thinking…";
+        msg.innerHTML = state.check ? ' <span class="check">Check!</span>' : "";
+      }
+      const sm = state.san_moves || [];
+      let s = "";
+      for (let i = 0; i < sm.length; i += 2) {
+        const n = i / 2 + 1;
+        s += `${n}. <b>${sm[i]}</b> ${sm[i + 1] || ""} `;
+      }
+      $("moves").innerHTML = s;
+    }
+
+    async function onSquare(name, piece) {
+      if (studyActive) return;
+      if (!gameId || busy || !state || state.over) return;
+      if (selected === null) {
+        // select only own (white) pieces
+        if (piece && piece === piece.toUpperCase()) { selected = name; render(); }
+        return;
+      }
+      if (name === selected) { selected = null; render(); return; }
+      // build uci; auto-queen promotion if a white pawn reaches rank 8
+      let uci = selected + name;
+      const fromGrid = fenToGrid(state.fen);
+      const fr = 8 - +selected[1], fc = "abcdefgh".indexOf(selected[0]);
+      const movingPiece = fromGrid[fr][fc];
+      if (movingPiece === "P" && name[1] === "8") uci += "q";
+
+      if (!state.legal_moves.includes(uci)) {
+        // maybe re-select another own piece
+        if (piece && piece === piece.toUpperCase()) { selected = name; render(); }
+        else { selected = null; render(); }
+        return;
+      }
+
+      busy = true;
+      try {
+        const { state: ns } = await api(`/api/games/${gameId}/move`, {
+          method: "POST", body: JSON.stringify({ uci }),
+        });
+        state = ns;
+        selected = null;
+        render();
+        if (state.over) { $("resignBtn").disabled = true; await loadHistory(); }
+      } catch (e) {
+        $("msg").textContent = " " + e.message;
+      } finally {
+        busy = false;
+      }
+    }
+
+    $("startBtn").addEventListener("click", async () => {
+      const white = $("white").value.trim() || "Player";
+      const { id, state: ns } = await api("/api/games", {
+        method: "POST", body: JSON.stringify({ white, black: "Bot" }),
+      });
+      gameId = id; state = ns; selected = null;
+      exitStudy();
+      $("resignBtn").disabled = false;
+      render();
+    });
+
+    $("resignBtn").addEventListener("click", async () => {
+      if (!gameId || !state || state.over) return;
+      const { state: ns } = await api(`/api/games/${gameId}/resign`, { method: "POST" });
+      state = ns; selected = null; $("resignBtn").disabled = true;
+      render(); await loadHistory();
+    });
+
+    async function loadHistory() {
+      try {
+        const { rows } = await api("/api/history?limit=10");
+        const body = $("hist");
+        if (!rows.length) {
+          body.innerHTML = `<tr><td colspan="4" style="color:var(--muted)">No games yet.</td></tr>`;
+          return;
+        }
+        body.innerHTML = rows.map((r) =>
+          `<tr><td>${r.white}</td><td>${r.black}</td><td>${r.result}</td><td>${r.moves}</td></tr>`
+        ).join("");
+      } catch (e) { /* ignore */ }
+    }
+
+    $("refreshBtn").addEventListener("click", loadHistory);
+
+    // ---- Study classic games ----
+    function setStudyNav(enabled) {
+      ["firstBtn", "prevBtn", "playBtn", "nextBtn", "lastBtn"].forEach((id) => {
+        $(id).disabled = !enabled;
+      });
+    }
+
+    function stopAuto() {
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; $("playBtn").textContent = "▶ Auto"; }
+    }
+
+    function exitStudy() {
+      studyActive = false;
+      study = null;
+      stopAuto();
+      setStudyNav(false);
+      $("classic").value = "";
+      $("lesson").textContent = "";
+      $("studyPos").textContent = "";
+      $("studyDesc").textContent = "";
+      $("studyNote").textContent = "";
+    }
+
+    function showStudyPos() {
+      const p = study.plies[study.idx];
+      // san_moves up to current ply for the move list
+      const sans = study.plies.slice(1, study.idx + 1).map((x) => x.san);
+      state = {
+        fen: p.fen,
+        last_move: p.uci,
+        san_moves: sans,
+        over: false, turn: p.side, check: false, legal_moves: [],
+      };
+      selected = null;
+      render();
+      $("studyPos").innerHTML = `move <b>${study.idx}</b> / ${study.plies.length - 1}`;
+      $("studyDesc").textContent = p.desc || "";
+      $("studyNote").textContent = p.note || "";
+    }
+
+    function studyGoto(i) {
+      if (!study) return;
+      study.idx = Math.max(0, Math.min(study.plies.length - 1, i));
+      showStudyPos();
+    }
+
+    async function loadClassics() {
+      try {
+        const { games } = await api("/api/classics");
+        const sel = $("classic");
+        games.forEach((g) => {
+          const opt = document.createElement("option");
+          opt.value = g.id; opt.textContent = g.name;
+          sel.appendChild(opt);
+        });
+      } catch (e) { /* ignore */ }
+    }
+
+    $("classic").addEventListener("change", async (e) => {
+      const id = e.target.value;
+      stopAuto();
+      if (!id) { exitStudy(); render(); return; }
+      const data = await api(`/api/classics/${id}`);
+      study = { id, name: data.name, plies: data.plies, idx: 0 };
+      studyActive = true;
+      $("lesson").textContent = data.lesson;
+      setStudyNav(true);
+      showStudyPos();
+    });
+
+    $("firstBtn").addEventListener("click", () => { stopAuto(); studyGoto(0); });
+    $("prevBtn").addEventListener("click", () => { stopAuto(); studyGoto(study.idx - 1); });
+    $("nextBtn").addEventListener("click", () => { stopAuto(); studyGoto(study.idx + 1); });
+    $("lastBtn").addEventListener("click", () => { stopAuto(); studyGoto(study.plies.length - 1); });
+    $("playBtn").addEventListener("click", () => {
+      if (!study) return;
+      if (autoTimer) { stopAuto(); return; }
+      if (study.idx >= study.plies.length - 1) studyGoto(0);
+      $("playBtn").textContent = "⏸ Stop";
+      autoTimer = setInterval(() => {
+        if (study.idx >= study.plies.length - 1) { stopAuto(); return; }
+        studyGoto(study.idx + 1);
+      }, 900);
+    });
+
+    // initial empty board
+    state = { fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w", legal_moves: [], san_moves: [], over: false, turn: "white", check: false };
+    render();
+    $("turn").textContent = "Press “Start game”";
+    loadHistory();
+    loadClassics();
+  </script>
+</body>
+</html>

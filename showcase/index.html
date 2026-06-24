@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boilerplate Stack — Project Showcase</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #141a2e;
+      --card-border: #243049;
+      --text: #e6ecff;
+      --muted: #97a3c4;
+      --accent: #6ea8fe;
+      --green: #34d399;
+      --amber: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(1200px 600px at 70% -10%, #1b2547 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 56px 24px 80px; }
+    header { text-align: center; margin-bottom: 48px; }
+    .badge {
+      display: inline-block; font-size: 12px; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--accent);
+      border: 1px solid var(--card-border); border-radius: 999px;
+      padding: 6px 14px; margin-bottom: 18px;
+    }
+    h1 { font-size: 40px; margin: 0 0 12px; line-height: 1.1; }
+    h1 span { color: var(--accent); }
+    .sub { color: var(--muted); font-size: 18px; max-width: 620px; margin: 0 auto; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+    .card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 16px; padding: 22px; text-decoration: none; color: inherit;
+      transition: transform .15s ease, border-color .15s ease;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    a.card:hover { transform: translateY(-3px); border-color: var(--accent); }
+    .card .top { display: flex; align-items: center; justify-content: space-between; }
+    .card h3 { margin: 0; font-size: 18px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .dot.up { background: var(--green); box-shadow: 0 0 10px var(--green); }
+    .dot.info { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+    .card .port { color: var(--muted); font-size: 14px; font-family: ui-monospace, "Cascadia Code", monospace; }
+    .card .desc { color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+    section { margin-top: 44px; }
+    section h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 0 0 16px; }
+    .stack { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 999px; padding: 8px 14px; font-size: 14px; color: var(--text);
+    }
+    footer { margin-top: 56px; text-align: center; color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="badge">Phase 1 Scaffolding</div>
+      <h1>Boilerplate <span>Stack</span></h1>
+      <p class="sub">A JSON-driven Supabase + Temporal starter, running locally in Docker Compose. Click a service below to open it.</p>
+    </header>
+
+    <section>
+      <h2>Live Services</h2>
+      <div class="grid">
+        <a class="card" href="http://localhost:3000" target="_blank" rel="noopener">
+          <div class="top"><h3>Frontend</h3><span class="dot up"></span></div>
+          <div class="port">localhost:3000</div>
+          <div class="desc">Vite + React + TanStack Router dev server with a JSON-driven UI engine.</div>
+        </a>
+        <a class="card" href="http://localhost:8080" target="_blank" rel="noopener">
+          <div class="top"><h3>Temporal UI</h3><span class="dot up"></span></div>
+          <div class="port">localhost:8080</div>
+          <div class="desc">Web dashboard for inspecting workflows, activities, and task queues.</div>
+        </a>
+        <a class="card" href="/slm.html">
+          <div class="top"><h3>Local SLM</h3><span class="dot up"></span></div>
+          <div class="port">localhost:11434 · qwen2.5:0.5b</div>
+          <div class="desc">GPT-style model in Docker — live demo, use cases, and technical internals.</div>
+        </a>
+        <div class="card">
+          <div class="top"><h3>Temporal Server</h3><span class="dot up"></span></div>
+          <div class="port">localhost:7234 (gRPC)</div>
+          <div class="desc">Durable workflow engine backing the Python worker.</div>
+        </div>
+        <div class="card">
+          <div class="top"><h3>Temporal Worker</h3><span class="dot up"></span></div>
+          <div class="port">python -m src.worker</div>
+          <div class="desc">Connected worker polling the <code>main</code> task queue.</div>
+        </div>
+        <div class="card">
+          <div class="top"><h3>Supabase DB</h3><span class="dot info"></span></div>
+          <div class="port">localhost:55432</div>
+          <div class="desc">Postgres 15 stub holding the core entity model and migrations.</div>
+        </div>
+        <div class="card">
+          <div class="top"><h3>Temporal DB</h3><span class="dot info"></span></div>
+          <div class="port">localhost:5433</div>
+          <div class="desc">Dedicated Postgres 15 instance for Temporal persistence.</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tech Stack</h2>
+      <div class="stack">
+        <span class="chip">React 18</span>
+        <span class="chip">Vite 5</span>
+        <span class="chip">TanStack Router + Query</span>
+        <span class="chip">Tailwind CSS 4</span>
+        <span class="chip">Supabase (Postgres 15)</span>
+        <span class="chip">Temporal 1.21</span>
+        <span class="chip">Python 3.11 worker</span>
+        <span class="chip">Docker Compose</span>
+      </div>
+    </section>
+
+    <footer>Served by nginx in Docker · Boilerplate Stack showcase</footer>
+  </div>
+</body>
+</html>

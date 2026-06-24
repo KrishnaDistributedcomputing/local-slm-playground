@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local SLM — Use Cases & Internals</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #141a2e;
+      --card-border: #243049;
+      --text: #e6ecff;
+      --muted: #97a3c4;
+      --accent: #6ea8fe;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --pink: #f472b6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(1200px 600px at 70% -10%, #1b2547 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    a { color: var(--accent); }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 48px 24px 80px; }
+    .back { display: inline-block; font-size: 14px; color: var(--muted); text-decoration: none; margin-bottom: 24px; }
+    .back:hover { color: var(--accent); }
+    header { text-align: center; margin-bottom: 40px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--accent);
+      border: 1px solid var(--card-border); border-radius: 999px;
+      padding: 6px 14px; margin-bottom: 18px;
+    }
+    .badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+    h1 { font-size: 38px; margin: 0 0 12px; line-height: 1.1; }
+    h1 span { color: var(--accent); }
+    .sub { color: var(--muted); font-size: 18px; max-width: 660px; margin: 0 auto; }
+
+    section { margin-top: 48px; }
+    section > h2 {
+      font-size: 14px; text-transform: uppercase; letter-spacing: .12em;
+      color: var(--muted); margin: 0 0 18px;
+    }
+
+    .card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 16px; padding: 22px;
+    }
+
+    /* Live demo */
+    .demo { display: grid; gap: 16px; }
+    .demo .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .demo label { font-size: 13px; color: var(--muted); }
+    .demo input, .demo textarea, .demo select {
+      background: #0e1426; border: 1px solid var(--card-border); color: var(--text);
+      border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: inherit;
+    }
+    .demo textarea { width: 100%; min-height: 84px; resize: vertical; }
+    .demo input { flex: 1; min-width: 180px; }
+    .demo button {
+      background: var(--accent); color: #08122b; border: none; border-radius: 10px;
+      padding: 12px 20px; font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: opacity .15s ease;
+    }
+    .demo button:hover { opacity: .9; }
+    .demo button:disabled { opacity: .5; cursor: not-allowed; }
+    .demo .out {
+      background: #0e1426; border: 1px solid var(--card-border); border-radius: 12px;
+      padding: 16px; min-height: 80px; font-size: 15px; line-height: 1.6; white-space: pre-wrap;
+    }
+    .demo .meta { font-size: 13px; color: var(--muted); font-family: ui-monospace, "Cascadia Code", monospace; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+    .pill .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); }
+    .pill.ok .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .pill.err .dot { background: var(--pink); box-shadow: 0 0 8px var(--pink); }
+    .examples { display: flex; flex-wrap: wrap; gap: 8px; }
+    .examples button {
+      background: transparent; border: 1px solid var(--card-border); color: var(--muted);
+      font-weight: 400; font-size: 13px; padding: 7px 12px;
+    }
+    .examples button:hover { color: var(--text); border-color: var(--accent); }
+
+    /* Use cases grid */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .uc { display: flex; flex-direction: column; gap: 8px; }
+    .uc .ico { font-size: 22px; }
+    .uc h3 { margin: 0; font-size: 17px; }
+    .uc p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+    /* Tech internals */
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+    .kv { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 14px; }
+    .kv dt { color: var(--muted); font-family: ui-monospace, "Cascadia Code", monospace; }
+    .kv dd { margin: 0; }
+    pre {
+      background: #0e1426; border: 1px solid var(--card-border); border-radius: 12px;
+      padding: 16px; overflow-x: auto; font-size: 13px; line-height: 1.55;
+      font-family: ui-monospace, "Cascadia Code", monospace; color: #c7d2fe;
+    }
+    .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 14px; }
+    .flow .node {
+      background: #0e1426; border: 1px solid var(--card-border); border-radius: 10px;
+      padding: 10px 14px; font-family: ui-monospace, "Cascadia Code", monospace; font-size: 13px;
+    }
+    .flow .arrow { color: var(--muted); }
+    code.inline { background: #0e1426; border: 1px solid var(--card-border); border-radius: 6px; padding: 2px 6px; font-size: 13px; font-family: ui-monospace, monospace; }
+    footer { margin-top: 56px; text-align: center; color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="/">&larr; Back to showcase</a>
+
+    <header>
+      <div class="badge"><span class="dot"></span> Running locally · 100% offline</div>
+      <h1>Local <span>Small Language Model</span></h1>
+      <p class="sub">A GPT-style model (<code class="inline">qwen2.5:0.5b</code>) served by Ollama inside Docker. No API keys, no cloud calls — every token is generated on this machine.</p>
+    </header>
+
+    <!-- LIVE DEMO -->
+    <section>
+      <h2>Try it live</h2>
+      <div class="card demo">
+        <div class="row">
+          <label for="endpointSel">Endpoint</label>
+          <select id="endpointSel">
+            <option value="http://localhost:11434">Local (localhost:11434)</option>
+            <option value="http://slm-ollama-mmrrblyslot2o.eastus.azurecontainer.io:11434">Azure ACI (eastus)</option>
+          </select>
+          <label for="modelSel">Model</label>
+          <select id="modelSel">
+            <option value="deepseek-r1:1.5b">deepseek-r1:1.5b</option>
+            <option value="gemma2:2b">gemma2:2b</option>
+            <option value="llama3.2:1b">llama3.2:1b</option>
+            <option value="qwen2.5:0.5b" selected>qwen2.5:0.5b</option>
+          </select>
+          <span id="status" class="pill"><span class="dot"></span> Checking model…</span>
+          <span class="meta" id="endpoint"></span>
+        </div>
+        <div>
+          <label for="prompt">Prompt</label>
+          <textarea id="prompt" placeholder="Ask the model anything…">Explain what a small language model is in two sentences.</textarea>
+        </div>
+        <div class="examples" id="examples">
+          <button data-p="Summarize this in one line: Temporal is a durable execution engine that makes long-running workflows reliable.">Summarize</button>
+          <button data-p="Classify the sentiment (positive/negative/neutral): 'The deploy was fast and everything just worked.'">Classify</button>
+          <button data-p="Write a friendly one-paragraph welcome email for a new user named Alex.">Draft email</button>
+          <button data-p="Extract the entities as JSON from: 'Invoice #4021 from Acme Corp due on 2026-07-01 for $1,250.'">Extract JSON</button>
+        </div>
+        <div class="row">
+          <button id="run">Generate</button>
+          <span class="meta" id="timing"></span>
+        </div>
+        <div class="out" id="out">The model's response will stream here…</div>
+      </div>
+    </section>
+
+    <!-- USE CASES -->
+    <section>
+      <h2>What it's good for</h2>
+      <div class="grid">
+        <div class="card uc">
+          <div class="ico">💬</div>
+          <h3>In-app assistant</h3>
+          <p>Powers the chat route in the frontend — answer questions and guide users without sending data to a third party.</p>
+        </div>
+        <div class="card uc">
+          <div class="ico">📝</div>
+          <h3>Summarization</h3>
+          <p>Condense workflow logs, support tickets, or long documents into short, actionable summaries.</p>
+        </div>
+        <div class="card uc">
+          <div class="ico">🏷️</div>
+          <h3>Classification & routing</h3>
+          <p>Tag sentiment, intent, or category so Temporal workflows can branch on the result automatically.</p>
+        </div>
+        <div class="card uc">
+          <div class="ico">🧩</div>
+          <h3>Structured extraction</h3>
+          <p>Pull names, dates, amounts, and IDs out of free text and emit clean JSON for the database.</p>
+        </div>
+        <div class="card uc">
+          <div class="ico">✉️</div>
+          <h3>Draft generation</h3>
+          <p>Generate email bodies, notifications, and templated copy that the mailer service then sends.</p>
+        </div>
+        <div class="card uc">
+          <div class="ico">🔒</div>
+          <h3>Private & cheap</h3>
+          <p>Runs on CPU in a 397 MB image. Zero per-token cost and no data leaves your network — ideal for prototyping.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECHNICAL INTERNALS -->
+    <section>
+      <h2>How it works (internals)</h2>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="flow">
+          <span class="node">Browser / Frontend</span>
+          <span class="arrow">→ HTTP POST /api/chat →</span>
+          <span class="node">Ollama :11434</span>
+          <span class="arrow">→ loads →</span>
+          <span class="node">qwen2.5:0.5b</span>
+          <span class="arrow">→ streams NDJSON →</span>
+          <span class="node">onToken()</span>
+        </div>
+      </div>
+
+      <div class="two">
+        <div class="card">
+          <h3 style="margin-top:0;font-size:16px;">Runtime facts</h3>
+          <dl class="kv">
+            <dt>image</dt><dd>ollama/ollama:latest</dd>
+            <dt>model</dt><dd>qwen2.5:0.5b (~0.5B params)</dd>
+            <dt>size</dt><dd>397 MB · CPU inference</dd>
+            <dt>port</dt><dd>localhost:11434</dd>
+            <dt>volume</dt><dd>ollama-data (persists weights)</dd>
+            <dt>CORS</dt><dd>OLLAMA_ORIGINS=* (dev only)</dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;font-size:16px;">Key endpoints</h3>
+          <dl class="kv">
+            <dt>POST /api/chat</dt><dd>Streaming chat completions</dd>
+            <dt>POST /api/generate</dt><dd>Single-prompt completion</dd>
+            <dt>GET /api/tags</dt><dd>List installed models</dd>
+            <dt>POST /api/pull</dt><dd>Download a new model</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <h3 style="font-size:16px;">Docker Compose (deployment)</h3>
+        <pre>  ollama:
+    image: ollama/ollama:latest
+    environment:
+      - OLLAMA_ORIGINS=*          # let the browser call the API
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama # cache the downloaded weights
+
+  ollama-pull:                    # one-shot: pull the model, then exit
+    image: ollama/ollama:latest
+    depends_on: [ollama]
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    entrypoint: ["/bin/sh", "-c", "sleep 5 && ollama pull qwen2.5:0.5b"]
+    restart: "no"</pre>
+      </div>
+
+      <div style="margin-top:16px;">
+        <h3 style="font-size:16px;">Streaming client (frontend/src/data/ollama.ts)</h3>
+        <pre>const res = await fetch(`${OLLAMA_URL}/api/chat`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ model, messages, stream: true }),
+});
+
+// Ollama returns newline-delimited JSON; read it chunk by chunk:
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+// for each line -> JSON.parse -> onToken(json.message.content)</pre>
+      </div>
+    </section>
+
+    <footer>Served by nginx in Docker · Local SLM showcase · Model: qwen2.5:0.5b via Ollama</footer>
+  </div>
+
+  <script>
+    // The browser talks to Ollama directly. Choose between the local Docker
+    // container and the Azure Container Instances deployment via the selector.
+    let OLLAMA_URL = 'http://localhost:11434';
+
+    const $ = (id) => document.getElementById(id);
+    const currentModel = () => $('modelSel').value;
+
+    // Health check + populate the model list for the selected endpoint.
+    async function checkHealth() {
+      const status = $('status');
+      const modelSel = $('modelSel');
+      status.className = 'pill';
+      status.innerHTML = '<span class="dot"></span> Checking models…';
+      try {
+        const res = await fetch(OLLAMA_URL + '/api/tags');
+        const data = await res.json();
+        const names = (data.models || []).map((m) => m.name).sort();
+        const previous = modelSel.value;
+        if (names.length) {
+          modelSel.innerHTML = names
+            .map((n) => `<option value="${n}">${n}</option>`) 
+            .join('');
+          if (names.includes(previous)) modelSel.value = previous;
+          status.className = 'pill ok';
+          status.innerHTML = '<span class="dot"></span> ' + names.length + ' model' + (names.length > 1 ? 's' : '') + ' ready';
+          $('endpoint').textContent = OLLAMA_URL;
+        } else {
+          modelSel.innerHTML = '<option>no models</option>';
+          status.className = 'pill';
+          status.innerHTML = '<span class="dot"></span> Server up — no models pulled';
+        }
+      } catch {
+        modelSel.innerHTML = '<option>unavailable</option>';
+        status.className = 'pill err';
+        status.innerHTML = '<span class="dot"></span> Unreachable at ' + OLLAMA_URL;
+      }
+    }
+
+    $('endpointSel').addEventListener('change', (e) => {
+      OLLAMA_URL = e.target.value;
+      checkHealth();
+    });
+
+    checkHealth();
+
+    // Example prompt buttons
+    $('examples').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-p]');
+      if (btn) $('prompt').value = btn.dataset.p;
+    });
+
+    // Streaming generation
+    $('run').addEventListener('click', async () => {
+      const btn = $('run');
+      const out = $('out');
+      const timing = $('timing');
+      const prompt = $('prompt').value.trim();
+      if (!prompt) return;
+
+      btn.disabled = true;
+      out.textContent = '';
+      timing.textContent = 'generating…';
+      const started = performance.now();
+
+      try {
+        const res = await fetch(OLLAMA_URL + '/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: currentModel(),
+            messages: [{ role: 'user', content: prompt }],
+            stream: true,
+          }),
+        });
+        if (!res.ok || !res.body) throw new Error('HTTP ' + res.status);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            const t = line.trim();
+            if (!t) continue;
+            try {
+              const json = JSON.parse(t);
+              if (json.message && json.message.content) {
+                out.textContent += json.message.content;
+              }
+            } catch { /* ignore partial lines */ }
+          }
+        }
+        const secs = ((performance.now() - started) / 1000).toFixed(1);
+        timing.textContent = 'done in ' + secs + 's';
+      } catch (err) {
+        out.textContent = 'Error: ' + err.message + '\n\nIs the ollama container running? Try: docker compose up -d ollama';
+        timing.textContent = '';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
