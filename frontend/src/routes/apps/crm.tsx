@@ -35,6 +35,8 @@ import {
   FileText,
   Handshake,
   Target,
+  Zap,
+  Crown,
 } from 'lucide-react';
 import {
   listContacts,
@@ -49,7 +51,7 @@ import {
   type CrmContact,
   type CrmDetail,
 } from '@/data/crm';
-import { streamChat, listModels, DEFAULT_MODEL } from '@/data/ollama';
+import { streamChat, chatMetrics, listModels, DEFAULT_MODEL, type ChatMetrics } from '@/data/ollama';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -234,6 +236,15 @@ function CrmApp() {
   const [aiStreaming, setAiStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
+  // Efficiency calculator
+  const [showCalc, setShowCalc] = useState(false);
+  const [benchTask, setBenchTask] = useState<AiTask>('pitch');
+  const [compareModels, setCompareModels] = useState<string[]>([]);
+  const [benchResults, setBenchResults] = useState<ChatMetrics[]>([]);
+  const [benchRunning, setBenchRunning] = useState(false);
+  const [benchModel, setBenchModel] = useState<string | null>(null);
+  const benchAbortRef = useRef<AbortController | null>(null);
+
   async function refresh() {
     const up = await pingCrm();
     setOnline(up);
@@ -250,7 +261,10 @@ function CrmApp() {
   useEffect(() => {
     refresh();
     listModels().then((m) => {
-      if (m.length) setAvailableModels(m);
+      if (m.length) {
+        setAvailableModels(m);
+        setCompareModels(m.slice(0, 3));
+      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -365,6 +379,80 @@ function CrmApp() {
       addContactNote(selectedId, `[AI · ${label}] ${aiOutput.trim()}`),
     );
   }
+
+  function toggleCompareModel(m: string) {
+    setCompareModels((prev) =>
+      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m],
+    );
+  }
+
+  function stopBench() {
+    benchAbortRef.current?.abort();
+    setBenchRunning(false);
+    setBenchModel(null);
+  }
+
+  async function runEfficiency() {
+    if (!detail || benchRunning || compareModels.length === 0) return;
+    setBenchRunning(true);
+    setBenchResults([]);
+    setError(null);
+    const controller = new AbortController();
+    benchAbortRef.current = controller;
+    const prompt = buildAiPrompt(benchTask, detail);
+    const results: ChatMetrics[] = [];
+    try {
+      for (const m of compareModels) {
+        if (controller.signal.aborted) break;
+        setBenchModel(m);
+        try {
+          const r = await chatMetrics(
+            [
+              { role: 'system', content: AI_SYSTEM },
+              { role: 'user', content: prompt },
+            ],
+            { model: m, signal: controller.signal },
+          );
+          results.push(r);
+        } catch (e) {
+          if ((e as Error).name === 'AbortError') break;
+          results.push({
+            model: m,
+            text: `Error: ${(e as Error).message}`,
+            promptTokens: 0,
+            completionTokens: 0,
+            totalTokens: 0,
+            totalMs: 0,
+            evalMs: 0,
+            loadMs: 0,
+            tokensPerSec: 0,
+          });
+        }
+        setBenchResults([...results]);
+      }
+    } finally {
+      setBenchRunning(false);
+      setBenchModel(null);
+      benchAbortRef.current = null;
+    }
+  }
+
+  // Effective throughput = useful output tokens per second of wall-clock time
+  // (includes model load), the headline "efficiency" metric for a use case.
+  function effThroughput(r: ChatMetrics): number {
+    return r.totalMs > 0 ? r.completionTokens / (r.totalMs / 1000) : 0;
+  }
+
+  const benchDone = benchResults.filter((r) => r.completionTokens > 0);
+  const maxEff = Math.max(1, ...benchDone.map(effThroughput));
+  const recommendedModel = (() => {
+    if (benchDone.length === 0) return null;
+    const substantive = benchDone.filter((r) => r.completionTokens >= 30);
+    const pool = substantive.length ? substantive : benchDone;
+    return pool.reduce((best, r) =>
+      effThroughput(r) > effThroughput(best) ? r : best,
+    ).model;
+  })();
 
   const s = detail?.state;
   const stageIdx = s ? CRM_STAGES.indexOf(s.stage as never) : -1;
@@ -676,16 +764,32 @@ function CrmApp() {
                 <h3 className="flex items-center gap-2 text-sm font-semibold">
                   <Sparkles className="h-4 w-4" style={{ color: ACCENT }} />
                   AI-driven selling
-                  <span className="text-xs font-normal text-muted-foreground">
-                    · {model}
-                  </span>
                 </h3>
-                {aiStreaming && (
-                  <Button size="sm" variant="ghost" onClick={stopAi}>
-                    <Square className="h-4 w-4" />
-                    Stop
-                  </Button>
-                )}
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs text-muted-foreground">Model</Label>
+                  <select
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                    title="Language model used for AI actions"
+                    disabled={aiStreaming}
+                  >
+                    {(availableModels.length
+                      ? availableModels
+                      : [DEFAULT_MODEL]
+                    ).map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                  {aiStreaming && (
+                    <Button size="sm" variant="ghost" onClick={stopAi}>
+                      <Square className="h-4 w-4" />
+                      Stop
+                    </Button>
+                  )}
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 Let the local model help you{' '}
@@ -777,6 +881,195 @@ function CrmApp() {
                   )}
                 </div>
               )}
+
+              {/* Efficiency calculator */}
+              <div className="rounded-xl border border-border/60 bg-muted/20 p-3">
+                <button
+                  onClick={() => setShowCalc((v) => !v)}
+                  className="flex w-full items-center justify-between text-sm font-semibold"
+                >
+                  <span className="flex items-center gap-2">
+                    <Zap className="h-4 w-4" style={{ color: '#f59e0b' }} />
+                    Model efficiency calculator
+                  </span>
+                  <ChevronRight
+                    className={cn(
+                      'h-4 w-4 transition-transform',
+                      showCalc && 'rotate-90',
+                    )}
+                  />
+                </button>
+
+                {showCalc && (
+                  <div className="mt-3 space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      Benchmark the same task across models on this lead and see
+                      which gives the most useful output per second. Effective
+                      throughput = completion tokens ÷ total time (lower latency
+                      and more output rank higher).
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Label className="text-xs">Use case</Label>
+                      <select
+                        value={benchTask}
+                        onChange={(e) =>
+                          setBenchTask(e.target.value as AiTask)
+                        }
+                        className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                        disabled={benchRunning}
+                      >
+                        {AI_TASKS.map((t) => (
+                          <option key={t.id} value={t.id}>
+                            {t.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">Models to compare</Label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(availableModels.length
+                          ? availableModels
+                          : [DEFAULT_MODEL]
+                        ).map((m) => {
+                          const on = compareModels.includes(m);
+                          return (
+                            <button
+                              key={m}
+                              onClick={() => toggleCompareModel(m)}
+                              disabled={benchRunning}
+                              className={cn(
+                                'rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
+                                on
+                                  ? 'text-white'
+                                  : 'text-muted-foreground ring-1 ring-inset ring-border',
+                              )}
+                              style={
+                                on ? { backgroundColor: ACCENT } : undefined
+                              }
+                            >
+                              {m}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={runEfficiency}
+                        disabled={benchRunning || compareModels.length === 0}
+                        style={{ backgroundColor: '#f59e0b' }}
+                        className="text-white"
+                      >
+                        <Zap className="h-4 w-4" />
+                        Run efficiency test
+                      </Button>
+                      {benchRunning && (
+                        <>
+                          <span className="text-xs text-muted-foreground">
+                            Testing {benchModel}…
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={stopBench}
+                          >
+                            <Square className="h-4 w-4" />
+                            Stop
+                          </Button>
+                        </>
+                      )}
+                    </div>
+
+                    {benchResults.length > 0 && (
+                      <div className="space-y-2">
+                        {recommendedModel && (
+                          <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm">
+                            <Crown className="h-4 w-4 text-emerald-500" />
+                            <span>
+                              Best for{' '}
+                              <strong>
+                                {
+                                  AI_TASKS.find((t) => t.id === benchTask)
+                                    ?.label
+                                }
+                              </strong>
+                              :{' '}
+                              <strong>{recommendedModel}</strong>
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="ml-auto h-7"
+                              onClick={() => setModel(recommendedModel)}
+                              disabled={model === recommendedModel}
+                            >
+                              {model === recommendedModel
+                                ? 'Selected'
+                                : 'Use it'}
+                            </Button>
+                          </div>
+                        )}
+
+                        <div className="space-y-1.5">
+                          {benchResults.map((r) => {
+                            const eff = effThroughput(r);
+                            const isBest = r.model === recommendedModel;
+                            const failed = r.completionTokens === 0;
+                            return (
+                              <div
+                                key={r.model}
+                                className="rounded-lg bg-background p-2.5 ring-1 ring-inset ring-border/50"
+                              >
+                                <div className="flex items-center justify-between gap-2 text-xs">
+                                  <span className="flex items-center gap-1.5 font-medium">
+                                    {isBest && (
+                                      <Crown className="h-3.5 w-3.5 text-emerald-500" />
+                                    )}
+                                    {r.model}
+                                  </span>
+                                  <span className="text-muted-foreground">
+                                    {failed
+                                      ? 'no output'
+                                      : `${eff.toFixed(1)} tok/s effective`}
+                                  </span>
+                                </div>
+                                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
+                                  <div
+                                    className="h-full rounded-full"
+                                    style={{
+                                      width: `${(eff / maxEff) * 100}%`,
+                                      backgroundColor: isBest
+                                        ? '#10b981'
+                                        : ACCENT,
+                                    }}
+                                  />
+                                </div>
+                                {!failed && (
+                                  <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-muted-foreground">
+                                    <span>
+                                      {(r.totalMs / 1000).toFixed(1)}s total
+                                    </span>
+                                    <span>
+                                      {r.tokensPerSec.toFixed(0)} tok/s gen
+                                    </span>
+                                    <span>{r.completionTokens} out tokens</span>
+                                    <span>{r.promptTokens} prompt tokens</span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </Card>
 
             {/* Add note */}

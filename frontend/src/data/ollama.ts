@@ -101,6 +101,90 @@ export async function streamChat(
   }
 }
 
+export interface ChatMetrics {
+  model: string;
+  /** Generated assistant text. */
+  text: string;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  /** Total wall-clock time for the call (ms), including model load. */
+  totalMs: number;
+  /** Pure generation time (ms). */
+  evalMs: number;
+  /** Model load time (ms). */
+  loadMs: number;
+  /** Generation throughput: completion tokens per second of eval time. */
+  tokensPerSec: number;
+}
+
+/**
+ * Run a single, non-streaming chat completion and return timing/token metrics.
+ * Used by the model efficiency calculator. Also records a usage event so the
+ * monitoring app reflects the benchmark traffic.
+ */
+export async function chatMetrics(
+  messages: ChatMessage[],
+  options: { model: string; signal?: AbortSignal },
+): Promise<ChatMetrics> {
+  const { model, signal } = options;
+
+  const response = await fetch(`${getOllamaUrl()}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, messages, stream: false }),
+    signal,
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new Error(
+      `Ollama request failed (${response.status}). ${detail || 'Is the model pulled?'}`,
+    );
+  }
+
+  const json = (await response.json()) as {
+    model?: string;
+    message?: { content?: string };
+    prompt_eval_count?: number;
+    eval_count?: number;
+    total_duration?: number;
+    eval_duration?: number;
+    load_duration?: number;
+  };
+
+  const promptTokens = json.prompt_eval_count ?? 0;
+  const completionTokens = json.eval_count ?? 0;
+  const totalMs = Math.round((json.total_duration ?? 0) / 1e6);
+  const evalMs = Math.round((json.eval_duration ?? 0) / 1e6);
+  const loadMs = Math.round((json.load_duration ?? 0) / 1e6);
+  const tokensPerSec = evalMs > 0 ? completionTokens / (evalMs / 1000) : 0;
+
+  if (promptTokens || completionTokens) {
+    recordUsage({
+      at: Date.now(),
+      model: json.model || model,
+      promptTokens,
+      completionTokens,
+      totalTokens: promptTokens + completionTokens,
+      durationMs: totalMs,
+      evalMs,
+    });
+  }
+
+  return {
+    model: json.model || model,
+    text: json.message?.content ?? '',
+    promptTokens,
+    completionTokens,
+    totalTokens: promptTokens + completionTokens,
+    totalMs,
+    evalMs,
+    loadMs,
+    tokensPerSec,
+  };
+}
+
 /**
  * List models currently available on the Ollama server.
  */
