@@ -8,7 +8,7 @@
 
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
-import { Boxes, Check, Copy, Cpu, ExternalLink, Gauge, HardDrive, Layers, Plug, RefreshCw, Sparkles, Terminal } from 'lucide-react';
+import { Boxes, Check, Copy, Cpu, ExternalLink, HardDrive, Layers, Plug, RefreshCw, Sparkles, Terminal } from 'lucide-react';
 import { getOllamaUrl, listModelDetails, pingOllama, type ModelInfo } from '@/data/ollama';
 import { modelColors } from '@/lib/modelColors';
 import { getModelBrand } from '@/data/modelBrands';
@@ -273,9 +273,6 @@ function ModelCard({ model: m }: { model: ModelInfo }) {
           <StatChip icon={<Layers className="h-3.5 w-3.5" />}>
             {m.quantization}
           </StatChip>
-        )}
-        {m.family && (
-          <StatChip icon={<Gauge className="h-3.5 w-3.5" />}>{m.family}</StatChip>
         )}
       </div>
 
