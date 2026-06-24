@@ -138,32 +138,75 @@ function HomePage() {
       )}
 
       {/* Model gallery */}
-      {models.length > 0 && (
-        <div>
-          <div className="mb-3 flex items-baseline justify-between">
-            <h3 className="text-lg font-semibold">Available models</h3>
-            <span className="text-xs text-muted-foreground">
-              {models.length} ready · Microsoft first
-            </span>
+      {models.length > 0 && (() => {
+        const bySize = (a: ModelInfo, b: ModelInfo) =>
+          (a.size || 0) - (b.size || 0);
+        const isMicrosoft = (m: ModelInfo) =>
+          getModelBrand(m.name).vendor.startsWith('Microsoft');
+        const microsoft = models.filter(isMicrosoft).sort(bySize);
+        const others = models.filter((m) => !isMicrosoft(m)).sort(bySize);
+
+        return (
+          <div className="space-y-6">
+            <div className="flex items-baseline justify-between">
+              <h3 className="text-lg font-semibold">Available models</h3>
+              <span className="text-xs text-muted-foreground">
+                {models.length} ready · Microsoft grouped first
+              </span>
+            </div>
+
+            {/* Microsoft group — boxed */}
+            {microsoft.length > 0 && (
+              <div
+                className="rounded-2xl border-2 border-dashed p-4 sm:p-5"
+                style={{
+                  borderColor: 'color-mix(in srgb, #0078d4 35%, transparent)',
+                  background: 'color-mix(in srgb, #0078d4 5%, transparent)',
+                }}
+              >
+                <div className="mb-3 flex items-center gap-2">
+                  <span
+                    className="flex h-7 w-7 items-center justify-center rounded-lg text-base font-semibold ring-1 ring-inset"
+                    style={{
+                      color: '#0078d4',
+                      backgroundColor: 'color-mix(in srgb, #0078d4 14%, transparent)',
+                      boxShadow: 'inset 0 0 0 1px color-mix(in srgb, #0078d4 28%, transparent)',
+                    }}
+                    aria-hidden
+                  >
+                    φ
+                  </span>
+                  <h4 className="text-sm font-semibold tracking-tight">
+                    Microsoft Phi models
+                  </h4>
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    {microsoft.length}
+                  </span>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {microsoft.map((m) => (
+                    <ModelCard key={m.name} model={m} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Other models */}
+            {others.length > 0 && (
+              <div>
+                <h4 className="mb-3 text-sm font-semibold tracking-tight text-muted-foreground">
+                  Other community models
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {others.map((m) => (
+                    <ModelCard key={m.name} model={m} />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[...models]
-              .sort((a, b) => {
-                const am = getModelBrand(a.name).vendor.startsWith('Microsoft')
-                  ? 0
-                  : 1;
-                const bm = getModelBrand(b.name).vendor.startsWith('Microsoft')
-                  ? 0
-                  : 1;
-                if (am !== bm) return am - bm;
-                return (a.size || 0) - (b.size || 0);
-              })
-              .map((m) => (
-                <ModelCard key={m.name} model={m} />
-              ))}
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Pull-more hint */}
       {online && (
