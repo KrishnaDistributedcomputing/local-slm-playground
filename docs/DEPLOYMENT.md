@@ -40,8 +40,8 @@ For architecture, models, and API details, see [SLM.md](./SLM.md).
 ## 1. Clone the repository
 
 ```bash
-git clone https://github.com/KrishnaDistributedcomputing/slm-ollama-stack.git
-cd slm-ollama-stack
+git clone https://github.com/KrishnaDistributedcomputing/local-slm-playground.git
+cd local-slm-playground
 ```
 
 ---

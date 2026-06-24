@@ -6,7 +6,7 @@ frontend and backed by durable [Temporal](https://temporal.io) workflows with
 [Supabase](https://supabase.com) (Postgres) persistence. Everything runs in
 Docker Compose — **nothing leaves your machine**.
 
-- **Repository:** `KrishnaDistributedcomputing/slm-ollama-stack`
+- **Repository:** `KrishnaDistributedcomputing/local-slm-playground`
 - **Stack:** React + Vite + TanStack Router + Tailwind v4 · Ollama · Temporal · Supabase/Postgres · FastAPI · Docker Compose
 - **Status:** Active development
 

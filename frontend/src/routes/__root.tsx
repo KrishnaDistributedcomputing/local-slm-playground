@@ -135,7 +135,7 @@ function Sidebar() {
         ))}
 
         <ExternalNavItem
-          href="https://github.com/KrishnaDistributedcomputing/slm-ollama-stack/tree/main/docs"
+          href="https://github.com/KrishnaDistributedcomputing/local-slm-playground/tree/main/docs"
           label="Documentation"
           icon={BookOpen}
           color="#64748b"
