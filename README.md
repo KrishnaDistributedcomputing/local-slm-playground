@@ -61,6 +61,21 @@ Once the stack is running, open **http://localhost:3000** and pick an app from t
 | **Polymarket Analyst** | `/apps/polymarket` | Estimate market odds for a real-world event (research only — not financial advice). |
 | **Kalshi Analyst** | `/apps/kalshi` | Turn an event question into a Kalshi-style YES/NO contract (research only — not financial advice). |
 
+### Business apps
+
+Department-focused assistants that show where a local SLM fits into everyday business workflows.
+
+| App | Route | Department | What it does |
+| --- | --- | --- | --- |
+| **Meeting Assistant** | `/apps/meeting-notes` | Operations | Turn raw meeting notes or a transcript into a summary, decisions and owner-assigned action items. |
+| **Support Reply Assistant** | `/apps/support-reply` | Customer Support | Draft clear, empathetic, ready-to-send replies to customer messages. |
+| **Job Description Writer** | `/apps/job-description` | HR | Generate a complete, inclusive job description from a few role details. |
+| **Resume Screener** | `/apps/resume-screener` | Recruiting | Score a candidate against a job description and surface strengths, gaps and interview questions. |
+| **Ad Copy Generator** | `/apps/ad-copy` | Marketing | Produce headlines, ad descriptions and calls to action from product or campaign details. |
+| **Contract Clause Analyzer** | `/apps/contract-analyzer` | Legal | Explain contract clauses in plain English and flag risky or unusual terms (informational only — not legal advice). |
+| **Financial Report Summarizer** | `/apps/finance-summary` | Finance | Condense earnings text or figures into an executive summary, key metrics and risks (informational only — not financial advice). |
+| **Customer Review Analyzer** | `/apps/review-analyzer` | Customer Insights | Turn customer reviews into sentiment, recurring themes and concrete actions. |
+
 ### Full-stack apps (Temporal + Supabase)
 
 | App | Route | What it does |
@@ -70,12 +85,14 @@ Once the stack is running, open **http://localhost:3000** and pick an app from t
 
 ## How to use
 
-### Text & code tools
+### Text, code & business apps
 1. Open the app from the left sidebar.
 2. Choose a model from the **model dropdown** (defaults to `qwen2.5:0.5b`; larger Phi/Gemma/Llama models give stronger results).
 3. Paste or type your input in the left panel.
-4. Click the action button (e.g. **Summarize**, **Translate**, **Review**) — the response streams in on the right.
+4. Click the action button (e.g. **Summarize**, **Translate**, **Review**, **Draft reply**, **Screen candidate**) — the response streams in on the right.
 5. Use **Stop** to cancel, **Copy** to grab the output, then tweak the input and re-run.
+
+> Tip: the **Resume Screener** takes a job description and a resume in the same box — paste the job description, then a line with `---`, then the resume.
 
 ### CRM (full-stack)
 1. Open **CRM (Sales)**. The CRM API (`crm-web`), Temporal and Supabase start automatically with `docker compose up -d`.
