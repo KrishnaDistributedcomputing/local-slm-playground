@@ -22,6 +22,7 @@ import {
   Lightbulb,
   GraduationCap,
   Database,
+  FileJson,
 } from 'lucide-react';
 import {
   getEndpoints,
@@ -266,6 +267,18 @@ function Sidebar() {
             >
               <Database className="h-4 w-4" />
               SQL Generator
+            </Link>
+            <Link
+              to="/apps/json-builder"
+              className={cn(
+                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+                location.pathname === '/apps/json-builder'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-muted'
+              )}
+            >
+              <FileJson className="h-4 w-4" />
+              JSON Builder
             </Link>
           </div>
         </div>

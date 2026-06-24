@@ -17,6 +17,7 @@ import { Route as AppsSummarizerRouteImport } from './routes/apps/summarizer'
 import { Route as AppsSqlRouteImport } from './routes/apps/sql'
 import { Route as AppsRewriterRouteImport } from './routes/apps/rewriter'
 import { Route as AppsProofreaderRouteImport } from './routes/apps/proofreader'
+import { Route as AppsJsonBuilderRouteImport } from './routes/apps/json-builder'
 import { Route as AppsExtractorRouteImport } from './routes/apps/extractor'
 import { Route as AppsExplainRouteImport } from './routes/apps/explain'
 import { Route as AppsEmailWriterRouteImport } from './routes/apps/email-writer'
@@ -65,6 +66,11 @@ const AppsProofreaderRoute = AppsProofreaderRouteImport.update({
   path: '/apps/proofreader',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppsJsonBuilderRoute = AppsJsonBuilderRouteImport.update({
+  id: '/apps/json-builder',
+  path: '/apps/json-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppsExtractorRoute = AppsExtractorRouteImport.update({
   id: '/apps/extractor',
   path: '/apps/extractor',
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/apps/email-writer': typeof AppsEmailWriterRoute
   '/apps/explain': typeof AppsExplainRoute
   '/apps/extractor': typeof AppsExtractorRoute
+  '/apps/json-builder': typeof AppsJsonBuilderRoute
   '/apps/proofreader': typeof AppsProofreaderRoute
   '/apps/rewriter': typeof AppsRewriterRoute
   '/apps/sql': typeof AppsSqlRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/apps/email-writer': typeof AppsEmailWriterRoute
   '/apps/explain': typeof AppsExplainRoute
   '/apps/extractor': typeof AppsExtractorRoute
+  '/apps/json-builder': typeof AppsJsonBuilderRoute
   '/apps/proofreader': typeof AppsProofreaderRoute
   '/apps/rewriter': typeof AppsRewriterRoute
   '/apps/sql': typeof AppsSqlRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/apps/email-writer': typeof AppsEmailWriterRoute
   '/apps/explain': typeof AppsExplainRoute
   '/apps/extractor': typeof AppsExtractorRoute
+  '/apps/json-builder': typeof AppsJsonBuilderRoute
   '/apps/proofreader': typeof AppsProofreaderRoute
   '/apps/rewriter': typeof AppsRewriterRoute
   '/apps/sql': typeof AppsSqlRoute
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
     | '/apps/email-writer'
     | '/apps/explain'
     | '/apps/extractor'
+    | '/apps/json-builder'
     | '/apps/proofreader'
     | '/apps/rewriter'
     | '/apps/sql'
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/apps/email-writer'
     | '/apps/explain'
     | '/apps/extractor'
+    | '/apps/json-builder'
     | '/apps/proofreader'
     | '/apps/rewriter'
     | '/apps/sql'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/apps/email-writer'
     | '/apps/explain'
     | '/apps/extractor'
+    | '/apps/json-builder'
     | '/apps/proofreader'
     | '/apps/rewriter'
     | '/apps/sql'
@@ -216,6 +228,7 @@ export interface RootRouteChildren {
   AppsEmailWriterRoute: typeof AppsEmailWriterRoute
   AppsExplainRoute: typeof AppsExplainRoute
   AppsExtractorRoute: typeof AppsExtractorRoute
+  AppsJsonBuilderRoute: typeof AppsJsonBuilderRoute
   AppsProofreaderRoute: typeof AppsProofreaderRoute
   AppsRewriterRoute: typeof AppsRewriterRoute
   AppsSqlRoute: typeof AppsSqlRoute
@@ -283,6 +296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppsProofreaderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apps/json-builder': {
+      id: '/apps/json-builder'
+      path: '/apps/json-builder'
+      fullPath: '/apps/json-builder'
+      preLoaderRoute: typeof AppsJsonBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/apps/extractor': {
       id: '/apps/extractor'
       path: '/apps/extractor'
@@ -344,6 +364,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppsEmailWriterRoute: AppsEmailWriterRoute,
   AppsExplainRoute: AppsExplainRoute,
   AppsExtractorRoute: AppsExtractorRoute,
+  AppsJsonBuilderRoute: AppsJsonBuilderRoute,
   AppsProofreaderRoute: AppsProofreaderRoute,
   AppsRewriterRoute: AppsRewriterRoute,
   AppsSqlRoute: AppsSqlRoute,
