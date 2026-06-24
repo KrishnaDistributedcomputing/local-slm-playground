@@ -17,6 +17,8 @@ import { Route as AppsSummarizerRouteImport } from './routes/apps/summarizer'
 import { Route as AppsSqlRouteImport } from './routes/apps/sql'
 import { Route as AppsRewriterRouteImport } from './routes/apps/rewriter'
 import { Route as AppsProofreaderRouteImport } from './routes/apps/proofreader'
+import { Route as AppsPolymarketRouteImport } from './routes/apps/polymarket'
+import { Route as AppsKalshiRouteImport } from './routes/apps/kalshi'
 import { Route as AppsJsonBuilderRouteImport } from './routes/apps/json-builder'
 import { Route as AppsExtractorRouteImport } from './routes/apps/extractor'
 import { Route as AppsExplainRouteImport } from './routes/apps/explain'
@@ -65,6 +67,16 @@ const AppsRewriterRoute = AppsRewriterRouteImport.update({
 const AppsProofreaderRoute = AppsProofreaderRouteImport.update({
   id: '/apps/proofreader',
   path: '/apps/proofreader',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsPolymarketRoute = AppsPolymarketRouteImport.update({
+  id: '/apps/polymarket',
+  path: '/apps/polymarket',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsKalshiRoute = AppsKalshiRouteImport.update({
+  id: '/apps/kalshi',
+  path: '/apps/kalshi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppsJsonBuilderRoute = AppsJsonBuilderRouteImport.update({
@@ -124,6 +136,8 @@ export interface FileRoutesByFullPath {
   '/apps/explain': typeof AppsExplainRoute
   '/apps/extractor': typeof AppsExtractorRoute
   '/apps/json-builder': typeof AppsJsonBuilderRoute
+  '/apps/kalshi': typeof AppsKalshiRoute
+  '/apps/polymarket': typeof AppsPolymarketRoute
   '/apps/proofreader': typeof AppsProofreaderRoute
   '/apps/rewriter': typeof AppsRewriterRoute
   '/apps/sql': typeof AppsSqlRoute
@@ -143,6 +157,8 @@ export interface FileRoutesByTo {
   '/apps/explain': typeof AppsExplainRoute
   '/apps/extractor': typeof AppsExtractorRoute
   '/apps/json-builder': typeof AppsJsonBuilderRoute
+  '/apps/kalshi': typeof AppsKalshiRoute
+  '/apps/polymarket': typeof AppsPolymarketRoute
   '/apps/proofreader': typeof AppsProofreaderRoute
   '/apps/rewriter': typeof AppsRewriterRoute
   '/apps/sql': typeof AppsSqlRoute
@@ -163,6 +179,8 @@ export interface FileRoutesById {
   '/apps/explain': typeof AppsExplainRoute
   '/apps/extractor': typeof AppsExtractorRoute
   '/apps/json-builder': typeof AppsJsonBuilderRoute
+  '/apps/kalshi': typeof AppsKalshiRoute
+  '/apps/polymarket': typeof AppsPolymarketRoute
   '/apps/proofreader': typeof AppsProofreaderRoute
   '/apps/rewriter': typeof AppsRewriterRoute
   '/apps/sql': typeof AppsSqlRoute
@@ -184,6 +202,8 @@ export interface FileRouteTypes {
     | '/apps/explain'
     | '/apps/extractor'
     | '/apps/json-builder'
+    | '/apps/kalshi'
+    | '/apps/polymarket'
     | '/apps/proofreader'
     | '/apps/rewriter'
     | '/apps/sql'
@@ -203,6 +223,8 @@ export interface FileRouteTypes {
     | '/apps/explain'
     | '/apps/extractor'
     | '/apps/json-builder'
+    | '/apps/kalshi'
+    | '/apps/polymarket'
     | '/apps/proofreader'
     | '/apps/rewriter'
     | '/apps/sql'
@@ -222,6 +244,8 @@ export interface FileRouteTypes {
     | '/apps/explain'
     | '/apps/extractor'
     | '/apps/json-builder'
+    | '/apps/kalshi'
+    | '/apps/polymarket'
     | '/apps/proofreader'
     | '/apps/rewriter'
     | '/apps/sql'
@@ -242,6 +266,8 @@ export interface RootRouteChildren {
   AppsExplainRoute: typeof AppsExplainRoute
   AppsExtractorRoute: typeof AppsExtractorRoute
   AppsJsonBuilderRoute: typeof AppsJsonBuilderRoute
+  AppsKalshiRoute: typeof AppsKalshiRoute
+  AppsPolymarketRoute: typeof AppsPolymarketRoute
   AppsProofreaderRoute: typeof AppsProofreaderRoute
   AppsRewriterRoute: typeof AppsRewriterRoute
   AppsSqlRoute: typeof AppsSqlRoute
@@ -307,6 +333,20 @@ declare module '@tanstack/react-router' {
       path: '/apps/proofreader'
       fullPath: '/apps/proofreader'
       preLoaderRoute: typeof AppsProofreaderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/polymarket': {
+      id: '/apps/polymarket'
+      path: '/apps/polymarket'
+      fullPath: '/apps/polymarket'
+      preLoaderRoute: typeof AppsPolymarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/kalshi': {
+      id: '/apps/kalshi'
+      path: '/apps/kalshi'
+      fullPath: '/apps/kalshi'
+      preLoaderRoute: typeof AppsKalshiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/apps/json-builder': {
@@ -386,6 +426,8 @@ const rootRouteChildren: RootRouteChildren = {
   AppsExplainRoute: AppsExplainRoute,
   AppsExtractorRoute: AppsExtractorRoute,
   AppsJsonBuilderRoute: AppsJsonBuilderRoute,
+  AppsKalshiRoute: AppsKalshiRoute,
+  AppsPolymarketRoute: AppsPolymarketRoute,
   AppsProofreaderRoute: AppsProofreaderRoute,
   AppsRewriterRoute: AppsRewriterRoute,
   AppsSqlRoute: AppsSqlRoute,

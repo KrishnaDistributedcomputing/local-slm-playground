@@ -24,6 +24,8 @@ import {
   Database,
   FileJson,
   CloudCog,
+  CircleDollarSign,
+  CandlestickChart,
 } from 'lucide-react';
 import {
   getEndpoints,
@@ -292,6 +294,30 @@ function Sidebar() {
             >
               <CloudCog className="h-4 w-4" />
               Azure Architecture
+            </Link>
+            <Link
+              to="/apps/polymarket"
+              className={cn(
+                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+                location.pathname === '/apps/polymarket'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-muted'
+              )}
+            >
+              <CircleDollarSign className="h-4 w-4" />
+              Polymarket
+            </Link>
+            <Link
+              to="/apps/kalshi"
+              className={cn(
+                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+                location.pathname === '/apps/kalshi'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-muted'
+              )}
+            >
+              <CandlestickChart className="h-4 w-4" />
+              Kalshi
             </Link>
           </div>
         </div>
