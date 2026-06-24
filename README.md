@@ -16,6 +16,11 @@ A durable sales pipeline where every lead is a long-running **Temporal** workflo
 
 ![Sales Force Automation CRM](docs/screenshots/02-crm.png)
 
+### AI-Driven Selling + model efficiency calculator
+Inside each lead, a dedicated **AI-Driven Selling** panel uses the local model to **build the deal** (discovery questions, value pitch, BANT, next best action) and **close the deal** (handle objections, draft proposal, closing email, close plan). The built-in **model efficiency calculator** benchmarks the same task across models and recommends the best one by *effective throughput* (completion tokens ÷ total time).
+
+![AI-Driven Selling and efficiency calculator](docs/screenshots/05-crm-ai.png)
+
 ### System Monitoring
 Live health for every service in the stack (Ollama, CRM API, Frontend, Temporal, Mailpit, Supabase DB) plus cumulative **token usage** captured from each local model request — totals, per-model breakdown and throughput.
 
@@ -60,7 +65,7 @@ Once the stack is running, open **http://localhost:3000** and pick an app from t
 
 | App | Route | What it does |
 | --- | --- | --- |
-| **CRM (Sales Force Automation)** | `/apps/crm` | A durable sales pipeline where each lead is a long-running **Temporal** workflow persisted to **Supabase**, with the local model layered on top for outreach drafting, next-best-action, deal summaries and BANT qualification. |
+| **CRM (Sales Force Automation)** | `/apps/crm` | A durable sales pipeline where each lead is a long-running **Temporal** workflow persisted to **Supabase**, with an **AI-Driven Selling** panel that uses the local model to build and close the deal (discovery, value pitch, BANT, objections, proposal, closing email, close plan) and a **model efficiency calculator** that benchmarks models to pick the best one per use case. |
 | **System Monitoring** | `/apps/monitor` | Live health for every service (Ollama, CRM API, Frontend, Temporal, Mailpit, Supabase DB) plus cumulative **token usage** captured from every model request, broken down per model. |
 
 ## How to use
@@ -76,7 +81,8 @@ Once the stack is running, open **http://localhost:3000** and pick an app from t
 1. Open **CRM (Sales)**. The CRM API (`crm-web`), Temporal and Supabase start automatically with `docker compose up -d`.
 2. Add a lead in **New lead** → this starts a durable `CrmLeadWorkflow` in Temporal, persisted to Supabase.
 3. Click a lead to open it, then drive the pipeline with **Advance / Mark won / Disqualify** (these are Temporal signals) — `New → Contacted → Qualified → Proposal → Won`.
-4. Use the **AI assistant** (Draft outreach email, Next best action, Summarize deal, Qualify BANT) and **Save to timeline** to write the result back to the lead's durable history.
+4. In the **AI-Driven Selling** panel, pick a model and run **Build the deal** actions (Discovery questions, Value pitch, Qualify BANT, Next best action) or **Close the deal** actions (Handle objections, Draft proposal, Closing email, Close plan, Outreach email, Summarize deal). Each result streams in and can be **saved to the durable timeline**.
+5. Use the **model efficiency calculator**: choose a use case, select the models to compare, and click **Run efficiency test** — it ranks models by effective throughput (completion tokens ÷ total time) and crowns the best one, with a one-click **Use it** to switch to it.
 
 ### System Monitoring
 1. Open **Monitoring** to see every service's status and latency; toggle **Auto-refresh** for 10s polling.
