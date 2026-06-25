@@ -184,6 +184,64 @@ architecture and the API reference see [docs/SLM.md](docs/SLM.md).
 | Mailer | http://localhost:8200 | Mailer service |
 | Chess / game-web | http://localhost:8095 | Demo game app |
 
+### Running on Windows (Docker Desktop + WSL2)
+
+The stack runs on Windows 10/11 through Docker Desktop. All commands below use **PowerShell** (the included Azure script is already PowerShell-native).
+
+1. **Enable WSL2** (one-time, in an **admin** PowerShell, then reboot):
+
+   ```powershell
+   wsl --install
+   wsl --set-default-version 2
+   ```
+
+2. **Install Docker Desktop** and enable the WSL2 backend:
+   - Download from https://www.docker.com/products/docker-desktop/ (or `winget install Docker.DockerDesktop`).
+   - In **Settings → General**, tick **Use the WSL 2 based engine**.
+   - In **Settings → Resources → WSL Integration**, enable your distro.
+   - Start Docker Desktop and wait until the whale icon shows **Engine running**.
+
+3. **Install Git and clone the repo** (or `winget install Git.Git`):
+
+   ```powershell
+   git clone https://github.com/KrishnaDistributedcomputing/local-slm-playground.git
+   cd local-slm-playground
+   ```
+
+4. **Create the env file** (PowerShell has no `cp`; use `Copy-Item`):
+
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+5. **Start the full stack** (`make` is not on Windows by default — call Docker Compose directly):
+
+   ```powershell
+   docker compose up -d
+   ```
+
+   The first run pulls images and the default model (`qwen2.5:0.5b`); give it a few minutes. Watch the model download with:
+
+   ```powershell
+   docker compose logs -f ollama-pull   # wait for "success", then Ctrl+C
+   ```
+
+6. **Open the app** at **http://localhost:3000** and the **Monitoring** app (`/apps/monitor`) to confirm every service is healthy.
+
+7. **Deploy the SLM to Azure** (optional) using the bundled PowerShell script:
+
+   ```powershell
+   az login
+   ./scripts/deploy-azure.ps1
+   ```
+
+**Windows tips**
+- **`make` (optional):** install with `winget install GnuWin32.Make` or `choco install make`, or just use the `docker compose …` commands shown throughout this guide.
+- **Run inside the project folder.** If a path has spaces, keep the commands as-is (PowerShell handles the current directory) or wrap paths in quotes.
+- **Ports:** if `port is already allocated`, find the process with `Get-NetTCPConnection -LocalPort 3000` (or 11434/8096/8080/55432…) and stop it, or change the mapping in `docker-compose.yml`.
+- **Performance:** give Docker Desktop enough memory in **Settings → Resources** (≥ 4 GB for the default model; more for larger Phi/Gemma/Llama models). Keep the repo on the Windows filesystem (e.g. `C:\…`) when using Docker Desktop's WSL2 integration.
+- **Line endings:** Git may warn `LF will be replaced by CRLF` — this is harmless. Shell scripts run inside Linux containers regardless.
+
 ### 1. Local deployment (Docker)
 
 ```bash
