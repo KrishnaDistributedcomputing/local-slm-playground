@@ -28,6 +28,8 @@ import {
   CandlestickChart,
   Briefcase,
   Activity,
+  Ticket,
+  Users,
   ClipboardList,
   LifeBuoy,
   UserPlus,
@@ -188,6 +190,8 @@ const PRIMARY_NAV: NavLink[] = [
 
 const APP_NAV: NavLink[] = [
   { to: '/apps/crm', label: 'CRM (Sales)', icon: Briefcase, color: '#2563eb' },
+  { to: '/apps/support', label: 'Support Desk', icon: Ticket, color: '#0891b2' },
+  { to: '/apps/recruiting', label: 'Recruiting', icon: Users, color: '#7c3aed' },
   { to: '/apps/monitor', label: 'Monitoring', icon: Activity, color: '#16a34a' },
   { to: '/apps/summarizer', label: 'Summarizer', icon: FileText, color: '#0ea5e9' },
   { to: '/apps/translator', label: 'Translator', icon: Languages, color: '#10b981' },

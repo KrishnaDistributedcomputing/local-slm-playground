@@ -98,6 +98,8 @@ Department-focused assistants that show where a local SLM fits into everyday bus
 | App | Route | What it does |
 | --- | --- | --- |
 | **CRM (Sales Force Automation)** | `/apps/crm` | A durable sales pipeline where each lead is a long-running **Temporal** workflow persisted to **Supabase**, with an **AI-Driven Selling** panel that uses the local model to build and close the deal (discovery, value pitch, BANT, objections, proposal, closing email, close plan) and a **model efficiency calculator** that benchmarks models to pick the best one per use case. |
+| **Support Ticket Desk** | `/apps/support` | A customer-support help desk where each ticket is a durable **Temporal** `SupportTicketWorkflow` persisted to **Supabase**. The pipeline `New → Triaged → Replied → Escalated → Resolved` is driven by signals with an **SLA reminder timer**, and the local model **auto-triages** (category / priority / sentiment) and **drafts replies**. |
+| **Recruiting Pipeline (ATS)** | `/apps/recruiting` | An applicant tracking system where each candidate is a durable **Temporal** `RecruitCandidateWorkflow` persisted to **Supabase**. The pipeline `Applied → Screened → Interview → Offer → Hired` is driven by signals, and the local model **scores resumes** and **generates interview questions**. |
 | **System Monitoring** | `/apps/monitor` | Live health for every service (Ollama, CRM API, Frontend, Temporal, Mailpit, Supabase DB) plus cumulative **token usage** captured from every model request, broken down per model. |
 
 ## How to use
@@ -117,6 +119,11 @@ Department-focused assistants that show where a local SLM fits into everyday bus
 3. Click a lead to open it, then drive the pipeline with **Advance / Mark won / Disqualify** (these are Temporal signals) — `New → Contacted → Qualified → Proposal → Won`.
 4. In the **AI-Driven Selling** panel, pick a model and run **Build the deal** actions (Discovery questions, Value pitch, Qualify BANT, Next best action) or **Close the deal** actions (Handle objections, Draft proposal, Closing email, Close plan, Outreach email, Summarize deal). Each result streams in and can be **saved to the durable timeline**.
 5. Use the **model efficiency calculator**: choose a use case, select the models to compare, and click **Run efficiency test** — it ranks models by effective throughput (completion tokens ÷ total time) and crowns the best one, with a one-click **Use it** to switch to it.
+
+### Support Ticket Desk & Recruiting Pipeline (full-stack)
+1. Open **Support Desk** or **Recruiting** from the sidebar. Both are served by the `ops-web` service (`http://localhost:8097`), which starts automatically with `docker compose up -d`.
+2. **Support Desk:** open a ticket → starts a durable `SupportTicketWorkflow`. Drive it with **Advance / Escalate / Resolve** (Temporal signals); an SLA timer logs a reminder on stale tickets. In **AI assist**, run **Auto-triage**, **Draft reply** or **Summarize** and save results to the durable timeline.
+3. **Recruiting:** add a candidate → starts a durable `RecruitCandidateWorkflow`. Drive it with **Advance / Hire / Reject**. In **AI assist**, paste a resume and run **Score resume**, **Interview questions** or **Summarize**.
 
 ### System Monitoring
 1. Open **Monitoring** to see every service's status and latency; toggle **Auto-refresh** for 10s polling.
@@ -176,6 +183,7 @@ architecture and the API reference see [docs/SLM.md](docs/SLM.md).
 | Frontend | http://localhost:3000 | React app (playground, chat, all apps) |
 | Ollama | http://localhost:11434 | Local model server (`OLLAMA_ORIGINS=*`) |
 | CRM API | http://localhost:8096 | FastAPI for the CRM app (`/api/health`) |
+| Ops API | http://localhost:8097 | FastAPI for Support Desk + Recruiting (`/api/health`) |
 | Showcase | http://localhost:8090 | Static SLM showcase (`/slm.html`) |
 | Temporal UI | http://localhost:8080 | Workflow dashboard |
 | Temporal gRPC | localhost:7234 | Worker/client endpoint |
@@ -322,6 +330,8 @@ docker exec ollama ollama pull gemma2:2b
 
 - **Frontend** changes (anything under `frontend/`): `docker compose up -d --build frontend`
 - **CRM API** changes (`temporal/src/crm_api.py`): `docker compose up -d --build crm-web`
+- **Ops API** changes (`temporal/src/ops_api.py`, Support Desk / Recruiting): `docker compose up -d --build ops-web`
+- **Temporal workflows / activities** (e.g. new workflow files): rebuild the worker too — `docker compose up -d --build temporal-worker`
 - **Showcase** changes: `docker compose build --no-cache showcase && docker compose up -d --force-recreate showcase`
 - **Docs / README only:** no rebuild needed.
 
@@ -337,7 +347,7 @@ az group delete --name rg-slm-ollama --yes --no-wait   # remove Azure resources 
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
-| `port is already allocated` | A host port (3000, 11434, 8096, 8080, 55432…) is in use | Stop the conflicting process or change the mapping in `docker-compose.yml` |
+| `port is already allocated` | A host port (3000, 11434, 8096, 8097, 8080, 55432…) is in use | Stop the conflicting process or change the mapping in `docker-compose.yml` |
 | Frontend shows `ERR_EMPTY_RESPONSE` / blank | Vite still starting after a rebuild | Wait a few seconds for the container to be ready, then reload |
 | `model not found` | Model not pulled yet | `docker exec ollama ollama pull <model>` or wait for the boot pull |
 | Chat/app can't reach the model | Wrong endpoint or CORS | Confirm the endpoint selector; ensure `OLLAMA_ORIGINS=*` on the `ollama` service |
