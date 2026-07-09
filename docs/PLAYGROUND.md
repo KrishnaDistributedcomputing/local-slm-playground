@@ -120,7 +120,7 @@ All services are defined in [docker-compose.yml](../docker-compose.yml).
 |---|---|---|---|
 | Frontend | `frontend` | `3000` | React playground (Vite dev server) |
 | Ollama | `ollama` | `11434` | Local model inference API |
-| Ollama pull | `ollama-pull` | — | One-shot: pulls `qwen2.5:0.5b` + `phi3.5:3.8b` |
+| Ollama pull | `ollama-pull` | — | One-shot: pulls the seven small playground models shown in the UI |
 | Chess API | `game-web` | `8095` | FastAPI → Temporal chess workflows |
 | CRM API | `crm-web` | `8096` | FastAPI → Temporal CRM lead workflows |
 | Temporal worker | `temporal-worker` | — | Hosts workflow + activity code |
@@ -302,7 +302,7 @@ Deployment templates live in [infra/azure/](../infra/azure):
 - [main.bicepparam](../infra/azure/main.bicepparam) — parameters.
 - [scripts/deploy-azure.ps1](../scripts/deploy-azure.ps1) — deployment helper.
 
-A suggested resource group for testing is `rg-slm-ollama` in `eastus`. See
+A suggested resource group for testing is `rg-slm-ollama` in `canadaeast`. See
 [docs/DEPLOYMENT.md](DEPLOYMENT.md) for details.
 
 ---

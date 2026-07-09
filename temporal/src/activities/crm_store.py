@@ -159,6 +159,41 @@ def list_contacts(limit: int = 50) -> list[dict[str, Any]]:
         conn.close()
 
 
+def get_contact(contact_id: str) -> dict[str, Any] | None:
+    """Return one CRM contact snapshot from Postgres, if present."""
+    conn = _connect()
+    try:
+        with conn, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            _ensure_tables(cur)
+            cur.execute(
+                """
+                SELECT id, name, email, company, value, stage, status, owner,
+                       notes_count, created_at, updated_at
+                FROM crm_contacts
+                WHERE id = %s;
+                """,
+                (contact_id,),
+            )
+            row = cur.fetchone()
+        if row is None:
+            return None
+        return {
+            "id": row["id"],
+            "name": row["name"],
+            "email": row["email"],
+            "company": row["company"],
+            "value": float(row["value"]),
+            "stage": row["stage"],
+            "status": row["status"],
+            "owner": row["owner"],
+            "notes_count": row["notes_count"],
+            "created_at": row["created_at"].isoformat(),
+            "updated_at": row["updated_at"].isoformat(),
+        }
+    finally:
+        conn.close()
+
+
 @activity.defn
 def get_activities(contact_id: str, limit: int = 50) -> list[dict[str, Any]]:
     """Return the activity timeline for a single contact, newest first."""

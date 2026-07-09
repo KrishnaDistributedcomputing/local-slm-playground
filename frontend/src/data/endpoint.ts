@@ -15,10 +15,41 @@ export interface Endpoint {
 const CURRENT_KEY = 'ollama.endpoint';
 const SAVED_KEY = 'ollama.endpoints';
 
+function defaultOllamaUrl(): string {
+  if (import.meta.env.VITE_OLLAMA_URL) return import.meta.env.VITE_OLLAMA_URL;
+  if (typeof window !== 'undefined' && isPublicHost()) {
+    if (window.location.protocol === 'http:') return `http://${window.location.hostname}:11434`;
+    return window.location.origin;
+  }
+  return 'http://localhost:11434';
+}
+
+function defaultEndpointLabel(): string {
+  if (import.meta.env.VITE_OLLAMA_URL) return 'Configured endpoint';
+  if (typeof window !== 'undefined' && isPublicHost()) return window.location.protocol === 'http:' ? 'Azure Ollama direct' : 'Azure proxy';
+  return 'Local (Docker)';
+}
+
+function isPublicHost(): boolean {
+  return typeof window !== 'undefined' && !['localhost', '127.0.0.1'].includes(window.location.hostname);
+}
+
+function isLocalEndpoint(url: string): boolean {
+  return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(url);
+}
+
+function isSameHostEndpoint(url: string): boolean {
+  try {
+    return typeof window !== 'undefined' && new URL(url).hostname === window.location.hostname;
+  } catch {
+    return false;
+  }
+}
+
 const DEFAULTS: Endpoint[] = [
   {
-    label: 'Local (Docker)',
-    url: import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434',
+    label: defaultEndpointLabel(),
+    url: defaultOllamaUrl(),
   },
 ];
 
@@ -48,7 +79,14 @@ export function getEndpoints(): Endpoint[] {
 /** The currently selected Ollama base URL. */
 export function getOllamaUrl(): string {
   try {
-    return localStorage.getItem(CURRENT_KEY) || DEFAULTS[0].url;
+    const saved = localStorage.getItem(CURRENT_KEY);
+    if (saved && isPublicHost() && window.location.protocol === 'http:' && isSameHostEndpoint(saved)) {
+      localStorage.removeItem(CURRENT_KEY);
+      return DEFAULTS[0].url;
+    }
+    if (saved && !(isPublicHost() && isLocalEndpoint(saved))) return saved;
+    if (saved && isPublicHost() && isLocalEndpoint(saved)) localStorage.removeItem(CURRENT_KEY);
+    return DEFAULTS[0].url;
   } catch {
     return DEFAULTS[0].url;
   }

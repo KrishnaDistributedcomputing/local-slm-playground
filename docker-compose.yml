@@ -178,8 +178,22 @@ services:
       - ollama
     environment:
       - OLLAMA_HOST=ollama:11434
-    # One-shot: wait for the server, then pull the small models into the shared volume.
-    entrypoint: ["/bin/sh", "-c", "sleep 5 && ollama pull qwen2.5:0.5b && ollama pull phi3.5:3.8b"]
+    # One-shot: wait for the server, then pull the playground's small model set.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        sleep 5
+        for model in \
+          qwen2.5:0.5b \
+          llama3.2:1b \
+          gemma2:2b \
+          deepseek-r1:1.5b \
+          phi3:mini \
+          phi3.5:3.8b \
+          phi4-mini; do
+          ollama pull "$$model"
+        done
     restart: "no"
 
   mailpit:

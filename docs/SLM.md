@@ -163,7 +163,7 @@ Infrastructure is defined as **Bicep** under `infra/azure/`:
 Deploy:
 
 ```powershell
-az group create --name rg-slm-ollama --location eastus
+az group create --name rg-slm-ollama --location canadaeast
 cd infra/azure
 az deployment group create `
   --resource-group rg-slm-ollama `

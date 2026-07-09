@@ -20,9 +20,9 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from temporalio.client import Client
 
-from .activities.crm_store import get_activities, list_contacts
+from .activities.crm_store import get_activities, get_contact, list_contacts
 from .config import settings
-from .workflows.example.crm_workflow import CrmLeadWorkflow
+from .workflows.example.crm_workflow import STAGES, CrmLeadWorkflow
 
 app = FastAPI(title="Mini CRM")
 
@@ -72,6 +72,18 @@ class Disqualify(BaseModel):
 def _slug(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
     return slug or "lead"
+
+
+def _snapshot_state(row: dict[str, Any]) -> dict[str, Any]:
+    stage = row["stage"]
+    status = row["status"]
+    return {
+        **row,
+        "stage_index": STAGES.index(stage) if stage in STAGES else 0,
+        "stages": STAGES,
+        "over": status in {"won", "lost"},
+        "notes": [],
+    }
 
 
 @app.get("/api/health")
@@ -158,7 +170,10 @@ async def contact_state(contact_id: str) -> dict[str, Any]:
     try:
         state = await handle.query(CrmLeadWorkflow.state)
     except Exception as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+        row = await asyncio.to_thread(get_contact, contact_id)
+        if row is None:
+            raise HTTPException(status_code=404, detail=str(exc))
+        state = _snapshot_state(row)
     timeline = get_activities(contact_id)
     return {"state": state, "timeline": timeline}
 

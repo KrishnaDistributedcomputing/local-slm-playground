@@ -360,7 +360,7 @@ az group delete --name rg-slm-ollama --yes --no-wait   # remove Azure resources 
 
 ## Local & Cloud SLM (Ollama)
 A GPT‑style small language model runs locally in Docker and can be deployed to Azure.
-- **Server:** `ollama` service on http://localhost:11434 (default model `qwen2.5:0.5b`; also `llama3.2:1b`, `gemma2:2b`)
+- **Server:** `ollama` service on http://localhost:11434 (bootstrap pulls the seven small playground models: Phi-4-mini, Phi-3.5, Phi-3-mini, Qwen2.5, Llama 3.2, Gemma 2, and DeepSeek-R1)
 - **Showcase UI:** http://localhost:8090/slm.html — live streaming demo with endpoint + model dropdowns
 - **Cloud:** Bicep IaC under `infra/azure/` deploys Ollama to Azure Container Instances
 

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Notify Hub icon">
+  <rect width="180" height="180" rx="38" fill="#0f6cbd" />
+  <path d="M45 121h90c-9-10-12-20-12-39 0-18-10-32-25-37v-5c0-5-4-9-9-9s-9 4-9 9v5c-15 5-25 19-25 37 0 19-3 29-10 39Z" fill="#fff" />
+  <path d="M73 130c3 8 9 13 17 13s14-5 17-13H73Z" fill="#cfe8ff" />
+  <circle cx="128" cy="48" r="17" fill="#7fba00" />
+</svg>

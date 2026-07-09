@@ -14,7 +14,7 @@ export interface ModelProfile {
 /** Profiles keyed by base model name (without the `:tag`). */
 const PROFILES: Record<string, ModelProfile> = {
   'qwen2.5': {
-    bestFor: 'Instant replies & simple instructions',
+    bestFor: 'Fast replies and simple instructions',
     strengths: [
       'Tiny and extremely fast, even on CPU',
       'Very low memory footprint',
@@ -28,7 +28,7 @@ const PROFILES: Record<string, ModelProfile> = {
     ],
   },
   'llama3.2': {
-    bestFor: 'Balanced everyday chat & summaries',
+    bestFor: 'Balanced chat and summaries',
     strengths: [
       'Well-rounded general conversation',
       'Reliable instruction following',
@@ -40,7 +40,7 @@ const PROFILES: Record<string, ModelProfile> = {
     ],
   },
   'gemma2': {
-    bestFor: 'Higher-quality writing & knowledge',
+    bestFor: 'Higher-quality writing and knowledge tasks',
     strengths: [
       'Best general knowledge in this set',
       'Stronger reasoning and writing quality',
@@ -52,11 +52,11 @@ const PROFILES: Record<string, ModelProfile> = {
     ],
   },
   'deepseek-r1': {
-    bestFor: 'Step-by-step reasoning, math & logic',
+    bestFor: 'Step-by-step reasoning, math, and logic',
     strengths: [
-      'Explicit chain-of-thought reasoning',
+      'Strong step-by-step reasoning behavior',
       'Strong at math, logic and puzzles',
-      'Shows its working for transparency',
+      'Useful when the operator needs a visible reasoning path',
     ],
     weaknesses: [
       'Verbose <think> output before answers',
@@ -64,7 +64,7 @@ const PROFILES: Record<string, ModelProfile> = {
     ],
   },
   'phi3.5': {
-    bestFor: 'Microsoft Phi — reasoning & coding on a small footprint',
+    bestFor: 'Microsoft Phi reasoning and coding on a small footprint',
     strengths: [
       'Trained by Microsoft on high-quality curated data',
       'Strong reasoning and coding for its 3.8B size',
@@ -90,11 +90,11 @@ const PROFILES: Record<string, ModelProfile> = {
     ],
   },
   'phi4-mini': {
-    bestFor: 'Microsoft Phi-4 Mini — latest-gen reasoning & coding',
+    bestFor: 'Microsoft Phi-4 Mini for modern reasoning and coding',
     strengths: [
       'Newest small Phi model from Microsoft',
       'Improved reasoning, math and coding vs Phi-3.5',
-      'Strong structured / function-style output',
+      'Strong structured and function-style output',
       'Long 128K context window',
     ],
     weaknesses: [

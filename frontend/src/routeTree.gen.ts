@@ -9,26 +9,55 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as ModelComparisonRouteImport } from './routes/model-comparison'
 import { Route as EmailRouteImport } from './routes/email'
 import { Route as ChatRouteImport } from './routes/chat'
+import { Route as AzureServicesRouteImport } from './routes/azure-services'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppsVerdictRouteImport } from './routes/apps/verdict'
 import { Route as AppsTranslatorRouteImport } from './routes/apps/translator'
+import { Route as AppsSupportReplyRouteImport } from './routes/apps/support-reply'
+import { Route as AppsSupportRouteImport } from './routes/apps/support'
 import { Route as AppsSummarizerRouteImport } from './routes/apps/summarizer'
 import { Route as AppsSqlRouteImport } from './routes/apps/sql'
 import { Route as AppsRewriterRouteImport } from './routes/apps/rewriter'
+import { Route as AppsReviewAnalyzerRouteImport } from './routes/apps/review-analyzer'
+import { Route as AppsResumeScreenerRouteImport } from './routes/apps/resume-screener'
+import { Route as AppsRecruitingRouteImport } from './routes/apps/recruiting'
 import { Route as AppsProofreaderRouteImport } from './routes/apps/proofreader'
-import { Route as AppsPolymarketRouteImport } from './routes/apps/polymarket'
-import { Route as AppsKalshiRouteImport } from './routes/apps/kalshi'
+import { Route as AppsPrediktRouteImport } from './routes/apps/predikt'
+import { Route as AppsNotificationsRouteImport } from './routes/apps/notifications'
+import { Route as AppsMonitorRouteImport } from './routes/apps/monitor'
+import { Route as AppsMeetingNotesRouteImport } from './routes/apps/meeting-notes'
 import { Route as AppsJsonBuilderRouteImport } from './routes/apps/json-builder'
+import { Route as AppsJobDescriptionRouteImport } from './routes/apps/job-description'
+import { Route as AppsFinanceSummaryRouteImport } from './routes/apps/finance-summary'
 import { Route as AppsExtractorRouteImport } from './routes/apps/extractor'
 import { Route as AppsExplainRouteImport } from './routes/apps/explain'
 import { Route as AppsEmailWriterRouteImport } from './routes/apps/email-writer'
+import { Route as AppsCrmRouteImport } from './routes/apps/crm'
+import { Route as AppsContractAnalyzerRouteImport } from './routes/apps/contract-analyzer'
 import { Route as AppsCodeReviewerRouteImport } from './routes/apps/code-reviewer'
+import { Route as AppsCarDealerRouteImport } from './routes/apps/car-dealer'
 import { Route as AppsBrainstormRouteImport } from './routes/apps/brainstorm'
+import { Route as AppsAzureServicesRouteImport } from './routes/apps/azure-services'
 import { Route as AppsAzureArchitectureRouteImport } from './routes/apps/azure-architecture'
+import { Route as AppsAdCopyRouteImport } from './routes/apps/ad-copy'
 import { Route as EntitiesEntityTypeIndexRouteImport } from './routes/entities/$entityType/index'
 import { Route as EntitiesEntityTypeIdRouteImport } from './routes/entities/$entityType/$id'
+import { Route as AppsNotificationsEventIdRouteImport } from './routes/apps/notifications_.$eventId'
 
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModelComparisonRoute = ModelComparisonRouteImport.update({
+  id: '/model-comparison',
+  path: '/model-comparison',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmailRoute = EmailRouteImport.update({
   id: '/email',
   path: '/email',
@@ -39,14 +68,34 @@ const ChatRoute = ChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AzureServicesRoute = AzureServicesRouteImport.update({
+  id: '/azure-services',
+  path: '/azure-services',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppsVerdictRoute = AppsVerdictRouteImport.update({
+  id: '/apps/verdict',
+  path: '/apps/verdict',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppsTranslatorRoute = AppsTranslatorRouteImport.update({
   id: '/apps/translator',
   path: '/apps/translator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsSupportReplyRoute = AppsSupportReplyRouteImport.update({
+  id: '/apps/support-reply',
+  path: '/apps/support-reply',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsSupportRoute = AppsSupportRouteImport.update({
+  id: '/apps/support',
+  path: '/apps/support',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppsSummarizerRoute = AppsSummarizerRouteImport.update({
@@ -64,24 +113,59 @@ const AppsRewriterRoute = AppsRewriterRouteImport.update({
   path: '/apps/rewriter',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppsReviewAnalyzerRoute = AppsReviewAnalyzerRouteImport.update({
+  id: '/apps/review-analyzer',
+  path: '/apps/review-analyzer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsResumeScreenerRoute = AppsResumeScreenerRouteImport.update({
+  id: '/apps/resume-screener',
+  path: '/apps/resume-screener',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsRecruitingRoute = AppsRecruitingRouteImport.update({
+  id: '/apps/recruiting',
+  path: '/apps/recruiting',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppsProofreaderRoute = AppsProofreaderRouteImport.update({
   id: '/apps/proofreader',
   path: '/apps/proofreader',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppsPolymarketRoute = AppsPolymarketRouteImport.update({
-  id: '/apps/polymarket',
-  path: '/apps/polymarket',
+const AppsPrediktRoute = AppsPrediktRouteImport.update({
+  id: '/apps/predikt',
+  path: '/apps/predikt',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppsKalshiRoute = AppsKalshiRouteImport.update({
-  id: '/apps/kalshi',
-  path: '/apps/kalshi',
+const AppsNotificationsRoute = AppsNotificationsRouteImport.update({
+  id: '/apps/notifications',
+  path: '/apps/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsMonitorRoute = AppsMonitorRouteImport.update({
+  id: '/apps/monitor',
+  path: '/apps/monitor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsMeetingNotesRoute = AppsMeetingNotesRouteImport.update({
+  id: '/apps/meeting-notes',
+  path: '/apps/meeting-notes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppsJsonBuilderRoute = AppsJsonBuilderRouteImport.update({
   id: '/apps/json-builder',
   path: '/apps/json-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsJobDescriptionRoute = AppsJobDescriptionRouteImport.update({
+  id: '/apps/job-description',
+  path: '/apps/job-description',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsFinanceSummaryRoute = AppsFinanceSummaryRouteImport.update({
+  id: '/apps/finance-summary',
+  path: '/apps/finance-summary',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppsExtractorRoute = AppsExtractorRouteImport.update({
@@ -99,9 +183,24 @@ const AppsEmailWriterRoute = AppsEmailWriterRouteImport.update({
   path: '/apps/email-writer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppsCrmRoute = AppsCrmRouteImport.update({
+  id: '/apps/crm',
+  path: '/apps/crm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsContractAnalyzerRoute = AppsContractAnalyzerRouteImport.update({
+  id: '/apps/contract-analyzer',
+  path: '/apps/contract-analyzer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppsCodeReviewerRoute = AppsCodeReviewerRouteImport.update({
   id: '/apps/code-reviewer',
   path: '/apps/code-reviewer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsCarDealerRoute = AppsCarDealerRouteImport.update({
+  id: '/apps/car-dealer',
+  path: '/apps/car-dealer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppsBrainstormRoute = AppsBrainstormRouteImport.update({
@@ -109,9 +208,19 @@ const AppsBrainstormRoute = AppsBrainstormRouteImport.update({
   path: '/apps/brainstorm',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppsAzureServicesRoute = AppsAzureServicesRouteImport.update({
+  id: '/apps/azure-services',
+  path: '/apps/azure-services',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppsAzureArchitectureRoute = AppsAzureArchitectureRouteImport.update({
   id: '/apps/azure-architecture',
   path: '/apps/azure-architecture',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsAdCopyRoute = AppsAdCopyRouteImport.update({
+  id: '/apps/ad-copy',
+  path: '/apps/ad-copy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EntitiesEntityTypeIndexRoute = EntitiesEntityTypeIndexRouteImport.update({
@@ -124,68 +233,131 @@ const EntitiesEntityTypeIdRoute = EntitiesEntityTypeIdRouteImport.update({
   path: '/entities/$entityType/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppsNotificationsEventIdRoute =
+  AppsNotificationsEventIdRouteImport.update({
+    id: '/apps/notifications_/$eventId',
+    path: '/apps/notifications/$eventId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/azure-services': typeof AzureServicesRoute
   '/chat': typeof ChatRoute
   '/email': typeof EmailRoute
+  '/model-comparison': typeof ModelComparisonRoute
+  '/notifications': typeof NotificationsRoute
+  '/apps/ad-copy': typeof AppsAdCopyRoute
   '/apps/azure-architecture': typeof AppsAzureArchitectureRoute
+  '/apps/azure-services': typeof AppsAzureServicesRoute
   '/apps/brainstorm': typeof AppsBrainstormRoute
+  '/apps/car-dealer': typeof AppsCarDealerRoute
   '/apps/code-reviewer': typeof AppsCodeReviewerRoute
+  '/apps/contract-analyzer': typeof AppsContractAnalyzerRoute
+  '/apps/crm': typeof AppsCrmRoute
   '/apps/email-writer': typeof AppsEmailWriterRoute
   '/apps/explain': typeof AppsExplainRoute
   '/apps/extractor': typeof AppsExtractorRoute
+  '/apps/finance-summary': typeof AppsFinanceSummaryRoute
+  '/apps/job-description': typeof AppsJobDescriptionRoute
   '/apps/json-builder': typeof AppsJsonBuilderRoute
-  '/apps/kalshi': typeof AppsKalshiRoute
-  '/apps/polymarket': typeof AppsPolymarketRoute
+  '/apps/meeting-notes': typeof AppsMeetingNotesRoute
+  '/apps/monitor': typeof AppsMonitorRoute
+  '/apps/notifications': typeof AppsNotificationsRoute
+  '/apps/predikt': typeof AppsPrediktRoute
   '/apps/proofreader': typeof AppsProofreaderRoute
+  '/apps/recruiting': typeof AppsRecruitingRoute
+  '/apps/resume-screener': typeof AppsResumeScreenerRoute
+  '/apps/review-analyzer': typeof AppsReviewAnalyzerRoute
   '/apps/rewriter': typeof AppsRewriterRoute
   '/apps/sql': typeof AppsSqlRoute
   '/apps/summarizer': typeof AppsSummarizerRoute
+  '/apps/support': typeof AppsSupportRoute
+  '/apps/support-reply': typeof AppsSupportReplyRoute
   '/apps/translator': typeof AppsTranslatorRoute
+  '/apps/verdict': typeof AppsVerdictRoute
+  '/apps/notifications/$eventId': typeof AppsNotificationsEventIdRoute
   '/entities/$entityType/$id': typeof EntitiesEntityTypeIdRoute
   '/entities/$entityType': typeof EntitiesEntityTypeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/azure-services': typeof AzureServicesRoute
   '/chat': typeof ChatRoute
   '/email': typeof EmailRoute
+  '/model-comparison': typeof ModelComparisonRoute
+  '/notifications': typeof NotificationsRoute
+  '/apps/ad-copy': typeof AppsAdCopyRoute
   '/apps/azure-architecture': typeof AppsAzureArchitectureRoute
+  '/apps/azure-services': typeof AppsAzureServicesRoute
   '/apps/brainstorm': typeof AppsBrainstormRoute
+  '/apps/car-dealer': typeof AppsCarDealerRoute
   '/apps/code-reviewer': typeof AppsCodeReviewerRoute
+  '/apps/contract-analyzer': typeof AppsContractAnalyzerRoute
+  '/apps/crm': typeof AppsCrmRoute
   '/apps/email-writer': typeof AppsEmailWriterRoute
   '/apps/explain': typeof AppsExplainRoute
   '/apps/extractor': typeof AppsExtractorRoute
+  '/apps/finance-summary': typeof AppsFinanceSummaryRoute
+  '/apps/job-description': typeof AppsJobDescriptionRoute
   '/apps/json-builder': typeof AppsJsonBuilderRoute
-  '/apps/kalshi': typeof AppsKalshiRoute
-  '/apps/polymarket': typeof AppsPolymarketRoute
+  '/apps/meeting-notes': typeof AppsMeetingNotesRoute
+  '/apps/monitor': typeof AppsMonitorRoute
+  '/apps/notifications': typeof AppsNotificationsRoute
+  '/apps/predikt': typeof AppsPrediktRoute
   '/apps/proofreader': typeof AppsProofreaderRoute
+  '/apps/recruiting': typeof AppsRecruitingRoute
+  '/apps/resume-screener': typeof AppsResumeScreenerRoute
+  '/apps/review-analyzer': typeof AppsReviewAnalyzerRoute
   '/apps/rewriter': typeof AppsRewriterRoute
   '/apps/sql': typeof AppsSqlRoute
   '/apps/summarizer': typeof AppsSummarizerRoute
+  '/apps/support': typeof AppsSupportRoute
+  '/apps/support-reply': typeof AppsSupportReplyRoute
   '/apps/translator': typeof AppsTranslatorRoute
+  '/apps/verdict': typeof AppsVerdictRoute
+  '/apps/notifications/$eventId': typeof AppsNotificationsEventIdRoute
   '/entities/$entityType/$id': typeof EntitiesEntityTypeIdRoute
   '/entities/$entityType': typeof EntitiesEntityTypeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/azure-services': typeof AzureServicesRoute
   '/chat': typeof ChatRoute
   '/email': typeof EmailRoute
+  '/model-comparison': typeof ModelComparisonRoute
+  '/notifications': typeof NotificationsRoute
+  '/apps/ad-copy': typeof AppsAdCopyRoute
   '/apps/azure-architecture': typeof AppsAzureArchitectureRoute
+  '/apps/azure-services': typeof AppsAzureServicesRoute
   '/apps/brainstorm': typeof AppsBrainstormRoute
+  '/apps/car-dealer': typeof AppsCarDealerRoute
   '/apps/code-reviewer': typeof AppsCodeReviewerRoute
+  '/apps/contract-analyzer': typeof AppsContractAnalyzerRoute
+  '/apps/crm': typeof AppsCrmRoute
   '/apps/email-writer': typeof AppsEmailWriterRoute
   '/apps/explain': typeof AppsExplainRoute
   '/apps/extractor': typeof AppsExtractorRoute
+  '/apps/finance-summary': typeof AppsFinanceSummaryRoute
+  '/apps/job-description': typeof AppsJobDescriptionRoute
   '/apps/json-builder': typeof AppsJsonBuilderRoute
-  '/apps/kalshi': typeof AppsKalshiRoute
-  '/apps/polymarket': typeof AppsPolymarketRoute
+  '/apps/meeting-notes': typeof AppsMeetingNotesRoute
+  '/apps/monitor': typeof AppsMonitorRoute
+  '/apps/notifications': typeof AppsNotificationsRoute
+  '/apps/predikt': typeof AppsPrediktRoute
   '/apps/proofreader': typeof AppsProofreaderRoute
+  '/apps/recruiting': typeof AppsRecruitingRoute
+  '/apps/resume-screener': typeof AppsResumeScreenerRoute
+  '/apps/review-analyzer': typeof AppsReviewAnalyzerRoute
   '/apps/rewriter': typeof AppsRewriterRoute
   '/apps/sql': typeof AppsSqlRoute
   '/apps/summarizer': typeof AppsSummarizerRoute
+  '/apps/support': typeof AppsSupportRoute
+  '/apps/support-reply': typeof AppsSupportReplyRoute
   '/apps/translator': typeof AppsTranslatorRoute
+  '/apps/verdict': typeof AppsVerdictRoute
+  '/apps/notifications_/$eventId': typeof AppsNotificationsEventIdRoute
   '/entities/$entityType/$id': typeof EntitiesEntityTypeIdRoute
   '/entities/$entityType/': typeof EntitiesEntityTypeIndexRoute
 }
@@ -193,92 +365,182 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/azure-services'
     | '/chat'
     | '/email'
+    | '/model-comparison'
+    | '/notifications'
+    | '/apps/ad-copy'
     | '/apps/azure-architecture'
+    | '/apps/azure-services'
     | '/apps/brainstorm'
+    | '/apps/car-dealer'
     | '/apps/code-reviewer'
+    | '/apps/contract-analyzer'
+    | '/apps/crm'
     | '/apps/email-writer'
     | '/apps/explain'
     | '/apps/extractor'
+    | '/apps/finance-summary'
+    | '/apps/job-description'
     | '/apps/json-builder'
-    | '/apps/kalshi'
-    | '/apps/polymarket'
+    | '/apps/meeting-notes'
+    | '/apps/monitor'
+    | '/apps/notifications'
+    | '/apps/predikt'
     | '/apps/proofreader'
+    | '/apps/recruiting'
+    | '/apps/resume-screener'
+    | '/apps/review-analyzer'
     | '/apps/rewriter'
     | '/apps/sql'
     | '/apps/summarizer'
+    | '/apps/support'
+    | '/apps/support-reply'
     | '/apps/translator'
+    | '/apps/verdict'
+    | '/apps/notifications/$eventId'
     | '/entities/$entityType/$id'
     | '/entities/$entityType'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/azure-services'
     | '/chat'
     | '/email'
+    | '/model-comparison'
+    | '/notifications'
+    | '/apps/ad-copy'
     | '/apps/azure-architecture'
+    | '/apps/azure-services'
     | '/apps/brainstorm'
+    | '/apps/car-dealer'
     | '/apps/code-reviewer'
+    | '/apps/contract-analyzer'
+    | '/apps/crm'
     | '/apps/email-writer'
     | '/apps/explain'
     | '/apps/extractor'
+    | '/apps/finance-summary'
+    | '/apps/job-description'
     | '/apps/json-builder'
-    | '/apps/kalshi'
-    | '/apps/polymarket'
+    | '/apps/meeting-notes'
+    | '/apps/monitor'
+    | '/apps/notifications'
+    | '/apps/predikt'
     | '/apps/proofreader'
+    | '/apps/recruiting'
+    | '/apps/resume-screener'
+    | '/apps/review-analyzer'
     | '/apps/rewriter'
     | '/apps/sql'
     | '/apps/summarizer'
+    | '/apps/support'
+    | '/apps/support-reply'
     | '/apps/translator'
+    | '/apps/verdict'
+    | '/apps/notifications/$eventId'
     | '/entities/$entityType/$id'
     | '/entities/$entityType'
   id:
     | '__root__'
     | '/'
+    | '/azure-services'
     | '/chat'
     | '/email'
+    | '/model-comparison'
+    | '/notifications'
+    | '/apps/ad-copy'
     | '/apps/azure-architecture'
+    | '/apps/azure-services'
     | '/apps/brainstorm'
+    | '/apps/car-dealer'
     | '/apps/code-reviewer'
+    | '/apps/contract-analyzer'
+    | '/apps/crm'
     | '/apps/email-writer'
     | '/apps/explain'
     | '/apps/extractor'
+    | '/apps/finance-summary'
+    | '/apps/job-description'
     | '/apps/json-builder'
-    | '/apps/kalshi'
-    | '/apps/polymarket'
+    | '/apps/meeting-notes'
+    | '/apps/monitor'
+    | '/apps/notifications'
+    | '/apps/predikt'
     | '/apps/proofreader'
+    | '/apps/recruiting'
+    | '/apps/resume-screener'
+    | '/apps/review-analyzer'
     | '/apps/rewriter'
     | '/apps/sql'
     | '/apps/summarizer'
+    | '/apps/support'
+    | '/apps/support-reply'
     | '/apps/translator'
+    | '/apps/verdict'
+    | '/apps/notifications_/$eventId'
     | '/entities/$entityType/$id'
     | '/entities/$entityType/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AzureServicesRoute: typeof AzureServicesRoute
   ChatRoute: typeof ChatRoute
   EmailRoute: typeof EmailRoute
+  ModelComparisonRoute: typeof ModelComparisonRoute
+  NotificationsRoute: typeof NotificationsRoute
+  AppsAdCopyRoute: typeof AppsAdCopyRoute
   AppsAzureArchitectureRoute: typeof AppsAzureArchitectureRoute
+  AppsAzureServicesRoute: typeof AppsAzureServicesRoute
   AppsBrainstormRoute: typeof AppsBrainstormRoute
+  AppsCarDealerRoute: typeof AppsCarDealerRoute
   AppsCodeReviewerRoute: typeof AppsCodeReviewerRoute
+  AppsContractAnalyzerRoute: typeof AppsContractAnalyzerRoute
+  AppsCrmRoute: typeof AppsCrmRoute
   AppsEmailWriterRoute: typeof AppsEmailWriterRoute
   AppsExplainRoute: typeof AppsExplainRoute
   AppsExtractorRoute: typeof AppsExtractorRoute
+  AppsFinanceSummaryRoute: typeof AppsFinanceSummaryRoute
+  AppsJobDescriptionRoute: typeof AppsJobDescriptionRoute
   AppsJsonBuilderRoute: typeof AppsJsonBuilderRoute
-  AppsKalshiRoute: typeof AppsKalshiRoute
-  AppsPolymarketRoute: typeof AppsPolymarketRoute
+  AppsMeetingNotesRoute: typeof AppsMeetingNotesRoute
+  AppsMonitorRoute: typeof AppsMonitorRoute
+  AppsNotificationsRoute: typeof AppsNotificationsRoute
+  AppsPrediktRoute: typeof AppsPrediktRoute
   AppsProofreaderRoute: typeof AppsProofreaderRoute
+  AppsRecruitingRoute: typeof AppsRecruitingRoute
+  AppsResumeScreenerRoute: typeof AppsResumeScreenerRoute
+  AppsReviewAnalyzerRoute: typeof AppsReviewAnalyzerRoute
   AppsRewriterRoute: typeof AppsRewriterRoute
   AppsSqlRoute: typeof AppsSqlRoute
   AppsSummarizerRoute: typeof AppsSummarizerRoute
+  AppsSupportRoute: typeof AppsSupportRoute
+  AppsSupportReplyRoute: typeof AppsSupportReplyRoute
   AppsTranslatorRoute: typeof AppsTranslatorRoute
+  AppsVerdictRoute: typeof AppsVerdictRoute
+  AppsNotificationsEventIdRoute: typeof AppsNotificationsEventIdRoute
   EntitiesEntityTypeIdRoute: typeof EntitiesEntityTypeIdRoute
   EntitiesEntityTypeIndexRoute: typeof EntitiesEntityTypeIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/model-comparison': {
+      id: '/model-comparison'
+      path: '/model-comparison'
+      fullPath: '/model-comparison'
+      preLoaderRoute: typeof ModelComparisonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/email': {
       id: '/email'
       path: '/email'
@@ -293,6 +555,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/azure-services': {
+      id: '/azure-services'
+      path: '/azure-services'
+      fullPath: '/azure-services'
+      preLoaderRoute: typeof AzureServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -300,11 +569,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apps/verdict': {
+      id: '/apps/verdict'
+      path: '/apps/verdict'
+      fullPath: '/apps/verdict'
+      preLoaderRoute: typeof AppsVerdictRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/apps/translator': {
       id: '/apps/translator'
       path: '/apps/translator'
       fullPath: '/apps/translator'
       preLoaderRoute: typeof AppsTranslatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/support-reply': {
+      id: '/apps/support-reply'
+      path: '/apps/support-reply'
+      fullPath: '/apps/support-reply'
+      preLoaderRoute: typeof AppsSupportReplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/support': {
+      id: '/apps/support'
+      path: '/apps/support'
+      fullPath: '/apps/support'
+      preLoaderRoute: typeof AppsSupportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/apps/summarizer': {
@@ -328,6 +618,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppsRewriterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apps/review-analyzer': {
+      id: '/apps/review-analyzer'
+      path: '/apps/review-analyzer'
+      fullPath: '/apps/review-analyzer'
+      preLoaderRoute: typeof AppsReviewAnalyzerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/resume-screener': {
+      id: '/apps/resume-screener'
+      path: '/apps/resume-screener'
+      fullPath: '/apps/resume-screener'
+      preLoaderRoute: typeof AppsResumeScreenerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/recruiting': {
+      id: '/apps/recruiting'
+      path: '/apps/recruiting'
+      fullPath: '/apps/recruiting'
+      preLoaderRoute: typeof AppsRecruitingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/apps/proofreader': {
       id: '/apps/proofreader'
       path: '/apps/proofreader'
@@ -335,18 +646,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppsProofreaderRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/apps/polymarket': {
-      id: '/apps/polymarket'
-      path: '/apps/polymarket'
-      fullPath: '/apps/polymarket'
-      preLoaderRoute: typeof AppsPolymarketRouteImport
+    '/apps/predikt': {
+      id: '/apps/predikt'
+      path: '/apps/predikt'
+      fullPath: '/apps/predikt'
+      preLoaderRoute: typeof AppsPrediktRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/apps/kalshi': {
-      id: '/apps/kalshi'
-      path: '/apps/kalshi'
-      fullPath: '/apps/kalshi'
-      preLoaderRoute: typeof AppsKalshiRouteImport
+    '/apps/notifications': {
+      id: '/apps/notifications'
+      path: '/apps/notifications'
+      fullPath: '/apps/notifications'
+      preLoaderRoute: typeof AppsNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/monitor': {
+      id: '/apps/monitor'
+      path: '/apps/monitor'
+      fullPath: '/apps/monitor'
+      preLoaderRoute: typeof AppsMonitorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/meeting-notes': {
+      id: '/apps/meeting-notes'
+      path: '/apps/meeting-notes'
+      fullPath: '/apps/meeting-notes'
+      preLoaderRoute: typeof AppsMeetingNotesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/apps/json-builder': {
@@ -354,6 +679,20 @@ declare module '@tanstack/react-router' {
       path: '/apps/json-builder'
       fullPath: '/apps/json-builder'
       preLoaderRoute: typeof AppsJsonBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/job-description': {
+      id: '/apps/job-description'
+      path: '/apps/job-description'
+      fullPath: '/apps/job-description'
+      preLoaderRoute: typeof AppsJobDescriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/finance-summary': {
+      id: '/apps/finance-summary'
+      path: '/apps/finance-summary'
+      fullPath: '/apps/finance-summary'
+      preLoaderRoute: typeof AppsFinanceSummaryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/apps/extractor': {
@@ -377,11 +716,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppsEmailWriterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apps/crm': {
+      id: '/apps/crm'
+      path: '/apps/crm'
+      fullPath: '/apps/crm'
+      preLoaderRoute: typeof AppsCrmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/contract-analyzer': {
+      id: '/apps/contract-analyzer'
+      path: '/apps/contract-analyzer'
+      fullPath: '/apps/contract-analyzer'
+      preLoaderRoute: typeof AppsContractAnalyzerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/apps/code-reviewer': {
       id: '/apps/code-reviewer'
       path: '/apps/code-reviewer'
       fullPath: '/apps/code-reviewer'
       preLoaderRoute: typeof AppsCodeReviewerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/car-dealer': {
+      id: '/apps/car-dealer'
+      path: '/apps/car-dealer'
+      fullPath: '/apps/car-dealer'
+      preLoaderRoute: typeof AppsCarDealerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/apps/brainstorm': {
@@ -391,11 +751,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppsBrainstormRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apps/azure-services': {
+      id: '/apps/azure-services'
+      path: '/apps/azure-services'
+      fullPath: '/apps/azure-services'
+      preLoaderRoute: typeof AppsAzureServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/apps/azure-architecture': {
       id: '/apps/azure-architecture'
       path: '/apps/azure-architecture'
       fullPath: '/apps/azure-architecture'
       preLoaderRoute: typeof AppsAzureArchitectureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/ad-copy': {
+      id: '/apps/ad-copy'
+      path: '/apps/ad-copy'
+      fullPath: '/apps/ad-copy'
+      preLoaderRoute: typeof AppsAdCopyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/entities/$entityType/': {
@@ -412,27 +786,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EntitiesEntityTypeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apps/notifications_/$eventId': {
+      id: '/apps/notifications_/$eventId'
+      path: '/apps/notifications/$eventId'
+      fullPath: '/apps/notifications/$eventId'
+      preLoaderRoute: typeof AppsNotificationsEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AzureServicesRoute: AzureServicesRoute,
   ChatRoute: ChatRoute,
   EmailRoute: EmailRoute,
+  ModelComparisonRoute: ModelComparisonRoute,
+  NotificationsRoute: NotificationsRoute,
+  AppsAdCopyRoute: AppsAdCopyRoute,
   AppsAzureArchitectureRoute: AppsAzureArchitectureRoute,
+  AppsAzureServicesRoute: AppsAzureServicesRoute,
   AppsBrainstormRoute: AppsBrainstormRoute,
+  AppsCarDealerRoute: AppsCarDealerRoute,
   AppsCodeReviewerRoute: AppsCodeReviewerRoute,
+  AppsContractAnalyzerRoute: AppsContractAnalyzerRoute,
+  AppsCrmRoute: AppsCrmRoute,
   AppsEmailWriterRoute: AppsEmailWriterRoute,
   AppsExplainRoute: AppsExplainRoute,
   AppsExtractorRoute: AppsExtractorRoute,
+  AppsFinanceSummaryRoute: AppsFinanceSummaryRoute,
+  AppsJobDescriptionRoute: AppsJobDescriptionRoute,
   AppsJsonBuilderRoute: AppsJsonBuilderRoute,
-  AppsKalshiRoute: AppsKalshiRoute,
-  AppsPolymarketRoute: AppsPolymarketRoute,
+  AppsMeetingNotesRoute: AppsMeetingNotesRoute,
+  AppsMonitorRoute: AppsMonitorRoute,
+  AppsNotificationsRoute: AppsNotificationsRoute,
+  AppsPrediktRoute: AppsPrediktRoute,
   AppsProofreaderRoute: AppsProofreaderRoute,
+  AppsRecruitingRoute: AppsRecruitingRoute,
+  AppsResumeScreenerRoute: AppsResumeScreenerRoute,
+  AppsReviewAnalyzerRoute: AppsReviewAnalyzerRoute,
   AppsRewriterRoute: AppsRewriterRoute,
   AppsSqlRoute: AppsSqlRoute,
   AppsSummarizerRoute: AppsSummarizerRoute,
+  AppsSupportRoute: AppsSupportRoute,
+  AppsSupportReplyRoute: AppsSupportReplyRoute,
   AppsTranslatorRoute: AppsTranslatorRoute,
+  AppsVerdictRoute: AppsVerdictRoute,
+  AppsNotificationsEventIdRoute: AppsNotificationsEventIdRoute,
   EntitiesEntityTypeIdRoute: EntitiesEntityTypeIdRoute,
   EntitiesEntityTypeIndexRoute: EntitiesEntityTypeIndexRoute,
 }

@@ -40,6 +40,9 @@ import {
   Star,
   ExternalLink,
   BookOpen,
+  Car,
+  Tags,
+  BellRing,
 } from 'lucide-react';
 import {
   getEndpoints,
@@ -59,11 +62,11 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-hidden bg-background">
       <Header />
-      <div className="flex">
+      <div className="flex min-w-0">
         <Sidebar />
-        <main className="min-w-0 flex-1 p-6">
+        <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8 xl:px-6 2xl:px-8">
           <Outlet />
         </main>
       </div>
@@ -76,12 +79,12 @@ function RootComponent() {
 
 function Header() {
   return (
-    <header className="sticky top-0 z-30 h-16 border-b bg-gradient-to-r from-indigo-50 via-card to-violet-50 flex items-center justify-between px-6">
-      <h1 className="flex items-center gap-2 text-xl font-bold">
+    <header className="sticky top-0 z-30 flex min-h-16 flex-wrap items-center justify-between gap-3 border-b bg-gradient-to-r from-indigo-50 via-card to-violet-50 px-4 py-3 sm:px-6">
+      <h1 className="flex min-w-0 items-center gap-2 text-lg font-bold sm:text-xl">
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-sm">
           <Sparkles className="h-4 w-4" />
         </span>
-        <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+        <span className="truncate bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
           Local Models Playground
         </span>
       </h1>
@@ -116,12 +119,12 @@ function EndpointSelector() {
   }
 
   return (
-    <div className="flex items-center gap-2 text-sm">
+    <div className="flex min-w-0 items-center gap-2 text-sm">
       <Server className="h-4 w-4 text-muted-foreground" />
       <select
         value={current}
         onChange={handleChange}
-        className="h-9 max-w-[260px] rounded-md border border-input bg-background px-2"
+        className="h-9 max-w-[min(260px,calc(100vw-4rem))] rounded-md border border-input bg-background px-2"
         title={current}
         aria-label="Model endpoint"
       >
@@ -138,7 +141,7 @@ function EndpointSelector() {
 
 function Sidebar() {
   return (
-    <aside className="sticky top-16 h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r bg-card">
+    <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r bg-card xl:block">
       <nav className="p-4 space-y-1.5">
         {PRIMARY_NAV.map((item) => (
           <NavItem key={item.to} {...item} />
@@ -153,6 +156,17 @@ function Sidebar() {
 
         <div className="pt-4">
           <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Management Plane
+          </h3>
+          <div className="mt-2 space-y-1">
+            {MANAGEMENT_NAV.map((item) => (
+              <NavItem key={item.to} {...item} />
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-4">
+          <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Apps
           </h3>
           <div className="mt-2 space-y-1">
@@ -164,10 +178,10 @@ function Sidebar() {
 
         <div className="pt-4">
           <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Which model should I use?
+            Which model fits?
           </h3>
           <p className="mt-1 px-3 text-xs text-muted-foreground">
-            Strengths and trade-offs of each installed model.
+            Strengths and trade-offs for each installed local model.
           </p>
           <ModelGuide />
         </div>
@@ -188,9 +202,15 @@ const PRIMARY_NAV: NavLink[] = [
   { to: '/chat', label: 'AI Chat', icon: Sparkles, color: '#8b5cf6' },
 ];
 
+const MANAGEMENT_NAV: NavLink[] = [
+  { to: '/azure-services', label: 'Azure Services', icon: Tags, color: '#0078d4' },
+];
+
 const APP_NAV: NavLink[] = [
   { to: '/apps/crm', label: 'CRM (Sales)', icon: Briefcase, color: '#2563eb' },
+  { to: '/apps/car-dealer', label: 'Car Dealer Demo', icon: Car, color: '#0f766e' },
   { to: '/apps/support', label: 'Support Desk', icon: Ticket, color: '#0891b2' },
+  { to: '/model-comparison', label: 'Model Comparison Engine', icon: BellRing, color: '#0f6cbd' },
   { to: '/apps/recruiting', label: 'Recruiting', icon: Users, color: '#7c3aed' },
   { to: '/apps/monitor', label: 'Monitoring', icon: Activity, color: '#16a34a' },
   { to: '/apps/summarizer', label: 'Summarizer', icon: FileText, color: '#0ea5e9' },
