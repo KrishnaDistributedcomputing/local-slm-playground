@@ -75,6 +75,16 @@ const seedDataAssets: DataAsset[] = [
   { id: 'asset-runbooks', title: 'Notification failover runbooks', type: 'Runbook', quality: 84, coverage: 'Operator steps for Teams, web push, Event Grid, and Service Bus fallback.' },
   { id: 'asset-kql', title: 'Validation query snippets', type: 'KQL query', quality: 78, coverage: 'CPU, latency, throttling, delivery failures, and queue depth checks.' },
   { id: 'asset-comms', title: 'Approved customer message patterns', type: 'Customer message', quality: 87, coverage: 'Plain-English templates for outage, degradation, recovery, and watch states.' },
+  { id: 'asset-postmortems', title: 'Post-incident learning notes', type: 'Post-incident review', quality: 82, coverage: 'Resolved incidents with cause, mitigation, customer impact, and prevention notes.' },
+];
+
+const dummyDataAssets: DataAsset[] = [
+  { id: 'dummy-aks-node-pressure', title: 'AKS node pressure alert pack', type: 'Azure alert payload', quality: 89, coverage: 'Node memory pressure, pod eviction, unavailable replicas, and autoscaler lag examples.' },
+  { id: 'dummy-sql-throttling', title: 'Azure SQL throttling incident pack', type: 'Azure alert payload', quality: 88, coverage: 'DTU saturation, deadlock spikes, worker exhaustion, timeout symptoms, and impacted app paths.' },
+  { id: 'dummy-storage-latency', title: 'Storage account latency runbook', type: 'Runbook', quality: 86, coverage: 'Hot partition checks, queue backlog triage, retry guidance, failover decision points, and rollback steps.' },
+  { id: 'dummy-servicebus-kql', title: 'Service Bus validation queries', type: 'KQL query', quality: 84, coverage: 'Dead-letter growth, active message age, server errors, lock loss, and consumer lag KQL snippets.' },
+  { id: 'dummy-frontdoor-comms', title: 'Front Door customer updates', type: 'Customer message', quality: 90, coverage: 'Customer-safe language for edge latency, routing degradation, mitigation progress, and recovery confirmation.' },
+  { id: 'dummy-keyvault-review', title: 'Key Vault access review examples', type: 'Post-incident review', quality: 83, coverage: 'Secret access failures, private endpoint DNS misses, permission regressions, and prevention actions.' },
 ];
 
 const dataTypes: DataType[] = ['Azure alert payload', 'Runbook', 'KQL query', 'Customer message', 'Post-incident review'];
@@ -117,6 +127,13 @@ function SlmEvaluatorApp() {
     setTitle('');
     setCoverage('');
     setQuality(82);
+  }
+
+  function addDummyDataAsset(asset: DataAsset) {
+    setDataAssets((current) => {
+      if (current.some((item) => item.id === asset.id)) return current;
+      return [...current, asset];
+    });
   }
 
   return (
@@ -286,6 +303,35 @@ function SlmEvaluatorApp() {
           >
             <FilePlus2 className="h-4 w-4" /> Add evaluation data
           </button>
+          <div className="mt-5 rounded-xl border bg-muted/30 p-3">
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <BookOpenCheck className="h-4 w-4 text-indigo-600" /> Dummy data sets
+            </div>
+            <div className="mt-3 grid gap-2">
+              {dummyDataAssets.map((asset) => {
+                const isAdded = dataAssets.some((item) => item.id === asset.id);
+                return (
+                  <div key={asset.id} className="rounded-lg border bg-background p-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <div className="text-sm font-semibold">{asset.title}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">{asset.type} · {asset.quality}/100</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => addDummyDataAsset(asset)}
+                        disabled={isAdded}
+                        className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100 transition hover:bg-indigo-100 disabled:bg-slate-100 disabled:text-slate-500 disabled:ring-slate-200"
+                      >
+                        {isAdded ? 'Added' : 'Add'}
+                      </button>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{asset.coverage}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         <div className="rounded-2xl border bg-card p-5 shadow-sm">
