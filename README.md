@@ -6,6 +6,13 @@ Phase 1 scaffolding for the JSON-driven Supabase + Temporal starter.
 
 A live walkthrough of the running stack (`docker compose up -d`), captured from the deployment at http://localhost:3000.
 
+### Model Comparison Engine
+Compare small language models for Azure incident response across Azure alert context, runtime fit, reasoning depth, customer clarity, validation quality, and operator-ready recommendations.
+
+![Model Comparison Engine overview](docs/screenshots/model-comparison-lens-full-page.png)
+
+![Model Comparison Engine lens matrix](docs/screenshots/model-comparison-lens-matrix.png)
+
 ### Local Models Playground
 Small language models served locally in Docker. Models are grouped with the Microsoft Phi family first, each card showing parameters, on-disk size, quantization and "best for" guidance.
 
