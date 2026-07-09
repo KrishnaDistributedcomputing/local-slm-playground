@@ -81,10 +81,17 @@ const seedDataAssets: DataAsset[] = [
 const dummyDataAssets: DataAsset[] = [
   { id: 'dummy-aks-node-pressure', title: 'AKS node pressure alert pack', type: 'Azure alert payload', quality: 89, coverage: 'Node memory pressure, pod eviction, unavailable replicas, and autoscaler lag examples.' },
   { id: 'dummy-sql-throttling', title: 'Azure SQL throttling incident pack', type: 'Azure alert payload', quality: 88, coverage: 'DTU saturation, deadlock spikes, worker exhaustion, timeout symptoms, and impacted app paths.' },
+  { id: 'dummy-appgw-502', title: 'Application Gateway 502 bundle', type: 'Azure alert payload', quality: 87, coverage: 'Backend health probe failures, gateway 5xx spikes, certificate expiry, and listener routing context.' },
   { id: 'dummy-storage-latency', title: 'Storage account latency runbook', type: 'Runbook', quality: 86, coverage: 'Hot partition checks, queue backlog triage, retry guidance, failover decision points, and rollback steps.' },
+  { id: 'dummy-aks-dns-runbook', title: 'AKS DNS outage runbook', type: 'Runbook', quality: 85, coverage: 'CoreDNS health checks, private DNS zone validation, node-level resolution tests, and service restart guardrails.' },
+  { id: 'dummy-cosmos-runbook', title: 'Cosmos DB RU exhaustion runbook', type: 'Runbook', quality: 88, coverage: 'RU saturation triage, partition key skew checks, autoscale limits, retry policy review, and customer impact framing.' },
   { id: 'dummy-servicebus-kql', title: 'Service Bus validation queries', type: 'KQL query', quality: 84, coverage: 'Dead-letter growth, active message age, server errors, lock loss, and consumer lag KQL snippets.' },
+  { id: 'dummy-aks-kql', title: 'AKS reliability KQL pack', type: 'KQL query', quality: 86, coverage: 'Container restarts, image pull failures, pod scheduling delays, node not-ready events, and namespace-level impact.' },
+  { id: 'dummy-appinsights-kql', title: 'App Insights latency KQL pack', type: 'KQL query', quality: 85, coverage: 'Dependency failures, p95 duration shifts, exception bursts, failed requests, and regional correlation queries.' },
   { id: 'dummy-frontdoor-comms', title: 'Front Door customer updates', type: 'Customer message', quality: 90, coverage: 'Customer-safe language for edge latency, routing degradation, mitigation progress, and recovery confirmation.' },
+  { id: 'dummy-database-comms', title: 'Database degradation messages', type: 'Customer message', quality: 89, coverage: 'Templates for elevated latency, throttling, partial mitigation, failover watch, and resolved-state confirmation.' },
   { id: 'dummy-keyvault-review', title: 'Key Vault access review examples', type: 'Post-incident review', quality: 83, coverage: 'Secret access failures, private endpoint DNS misses, permission regressions, and prevention actions.' },
+  { id: 'dummy-eventhub-review', title: 'Event Hub backlog reviews', type: 'Post-incident review', quality: 84, coverage: 'Consumer group lag incidents, throughput unit limits, checkpoint failures, replay actions, and recurrence prevention.' },
 ];
 
 const dataTypes: DataType[] = ['Azure alert payload', 'Runbook', 'KQL query', 'Customer message', 'Post-incident review'];
@@ -135,6 +142,15 @@ function SlmEvaluatorApp() {
       return [...current, asset];
     });
   }
+
+  function addAllDummyDataAssets() {
+    setDataAssets((current) => {
+      const existingIds = new Set(current.map((asset) => asset.id));
+      return [...current, ...dummyDataAssets.filter((asset) => !existingIds.has(asset.id))];
+    });
+  }
+
+  const addedDummyCount = dataAssets.filter((asset) => dummyDataAssets.some((dummy) => dummy.id === asset.id)).length;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -304,8 +320,21 @@ function SlmEvaluatorApp() {
             <FilePlus2 className="h-4 w-4" /> Add evaluation data
           </button>
           <div className="mt-5 rounded-xl border bg-muted/30 p-3">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <BookOpenCheck className="h-4 w-4 text-indigo-600" /> Dummy data sets
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <BookOpenCheck className="h-4 w-4 text-indigo-600" /> Dummy data sets
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">{addedDummyCount} of {dummyDataAssets.length} loaded into this evaluation.</p>
+              </div>
+              <button
+                type="button"
+                onClick={addAllDummyDataAssets}
+                disabled={addedDummyCount === dummyDataAssets.length}
+                className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-500"
+              >
+                {addedDummyCount === dummyDataAssets.length ? 'All loaded' : 'Load all dummy data'}
+              </button>
             </div>
             <div className="mt-3 grid gap-2">
               {dummyDataAssets.map((asset) => {

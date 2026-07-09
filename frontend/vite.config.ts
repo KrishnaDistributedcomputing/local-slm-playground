@@ -15,6 +15,7 @@ const azureAllowedHosts = [
   'model-comparison-guide-a6y7xc7.canadaeast.azurecontainer.io',
   'model-comparison-tech-a6y7xc7.canadaeast.azurecontainer.io',
   'model-comparison-lens-a6y7xc7.canadaeast.azurecontainer.io',
+  'slm-evaluator-data-a6y7xc7.canadaeast.azurecontainer.io',
 ];
 
 export default defineConfig({
