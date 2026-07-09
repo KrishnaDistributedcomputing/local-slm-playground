@@ -43,6 +43,7 @@ import {
   Car,
   Tags,
   BellRing,
+  Microscope,
 } from 'lucide-react';
 import {
   getEndpoints,
@@ -211,6 +212,7 @@ const APP_NAV: NavLink[] = [
   { to: '/apps/car-dealer', label: 'Car Dealer Demo', icon: Car, color: '#0f766e' },
   { to: '/apps/support', label: 'Support Desk', icon: Ticket, color: '#0891b2' },
   { to: '/model-comparison', label: 'Model Comparison Engine', icon: BellRing, color: '#0f6cbd' },
+  { to: '/apps/slm-evaluator', label: 'SLM Evaluator', icon: Microscope, color: '#4f46e5' },
   { to: '/apps/recruiting', label: 'Recruiting', icon: Users, color: '#7c3aed' },
   { to: '/apps/monitor', label: 'Monitoring', icon: Activity, color: '#16a34a' },
   { to: '/apps/summarizer', label: 'Summarizer', icon: FileText, color: '#0ea5e9' },

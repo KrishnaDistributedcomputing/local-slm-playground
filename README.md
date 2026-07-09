@@ -108,6 +108,7 @@ Department-focused assistants that show where a local SLM fits into everyday bus
 | **Support Ticket Desk** | `/apps/support` | A customer-support help desk where each ticket is a durable **Temporal** `SupportTicketWorkflow` persisted to **Supabase**. The pipeline `New → Triaged → Replied → Escalated → Resolved` is driven by signals with an **SLA reminder timer**, and the local model **auto-triages** (category / priority / sentiment) and **drafts replies**. |
 | **Recruiting Pipeline (ATS)** | `/apps/recruiting` | An applicant tracking system where each candidate is a durable **Temporal** `RecruitCandidateWorkflow` persisted to **Supabase**. The pipeline `Applied → Screened → Interview → Offer → Hired` is driven by signals, and the local model **scores resumes** and **generates interview questions**. |
 | **System Monitoring** | `/apps/monitor` | Live health for every service (Ollama, CRM API, Frontend, Temporal, Mailpit, Supabase DB) plus cumulative **token usage** captured from every model request, broken down per model. |
+| **SLM Evaluator** | `/apps/slm-evaluator` | Compare small language models across Azure operations scenarios, rank model fit with scenario-specific scoring, and add evaluation data such as alerts, runbooks, KQL queries and customer messages to improve SLM success. |
 
 ## How to use
 

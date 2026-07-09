@@ -21,6 +21,7 @@ import { Route as AppsSupportReplyRouteImport } from './routes/apps/support-repl
 import { Route as AppsSupportRouteImport } from './routes/apps/support'
 import { Route as AppsSummarizerRouteImport } from './routes/apps/summarizer'
 import { Route as AppsSqlRouteImport } from './routes/apps/sql'
+import { Route as AppsSlmEvaluatorRouteImport } from './routes/apps/slm-evaluator'
 import { Route as AppsRewriterRouteImport } from './routes/apps/rewriter'
 import { Route as AppsReviewAnalyzerRouteImport } from './routes/apps/review-analyzer'
 import { Route as AppsResumeScreenerRouteImport } from './routes/apps/resume-screener'
@@ -106,6 +107,11 @@ const AppsSummarizerRoute = AppsSummarizerRouteImport.update({
 const AppsSqlRoute = AppsSqlRouteImport.update({
   id: '/apps/sql',
   path: '/apps/sql',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppsSlmEvaluatorRoute = AppsSlmEvaluatorRouteImport.update({
+  id: '/apps/slm-evaluator',
+  path: '/apps/slm-evaluator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppsRewriterRoute = AppsRewriterRouteImport.update({
@@ -270,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/apps/resume-screener': typeof AppsResumeScreenerRoute
   '/apps/review-analyzer': typeof AppsReviewAnalyzerRoute
   '/apps/rewriter': typeof AppsRewriterRoute
+  '/apps/slm-evaluator': typeof AppsSlmEvaluatorRoute
   '/apps/sql': typeof AppsSqlRoute
   '/apps/summarizer': typeof AppsSummarizerRoute
   '/apps/support': typeof AppsSupportRoute
@@ -310,6 +317,7 @@ export interface FileRoutesByTo {
   '/apps/resume-screener': typeof AppsResumeScreenerRoute
   '/apps/review-analyzer': typeof AppsReviewAnalyzerRoute
   '/apps/rewriter': typeof AppsRewriterRoute
+  '/apps/slm-evaluator': typeof AppsSlmEvaluatorRoute
   '/apps/sql': typeof AppsSqlRoute
   '/apps/summarizer': typeof AppsSummarizerRoute
   '/apps/support': typeof AppsSupportRoute
@@ -351,6 +359,7 @@ export interface FileRoutesById {
   '/apps/resume-screener': typeof AppsResumeScreenerRoute
   '/apps/review-analyzer': typeof AppsReviewAnalyzerRoute
   '/apps/rewriter': typeof AppsRewriterRoute
+  '/apps/slm-evaluator': typeof AppsSlmEvaluatorRoute
   '/apps/sql': typeof AppsSqlRoute
   '/apps/summarizer': typeof AppsSummarizerRoute
   '/apps/support': typeof AppsSupportRoute
@@ -393,6 +402,7 @@ export interface FileRouteTypes {
     | '/apps/resume-screener'
     | '/apps/review-analyzer'
     | '/apps/rewriter'
+    | '/apps/slm-evaluator'
     | '/apps/sql'
     | '/apps/summarizer'
     | '/apps/support'
@@ -433,6 +443,7 @@ export interface FileRouteTypes {
     | '/apps/resume-screener'
     | '/apps/review-analyzer'
     | '/apps/rewriter'
+    | '/apps/slm-evaluator'
     | '/apps/sql'
     | '/apps/summarizer'
     | '/apps/support'
@@ -473,6 +484,7 @@ export interface FileRouteTypes {
     | '/apps/resume-screener'
     | '/apps/review-analyzer'
     | '/apps/rewriter'
+    | '/apps/slm-evaluator'
     | '/apps/sql'
     | '/apps/summarizer'
     | '/apps/support'
@@ -514,6 +526,7 @@ export interface RootRouteChildren {
   AppsResumeScreenerRoute: typeof AppsResumeScreenerRoute
   AppsReviewAnalyzerRoute: typeof AppsReviewAnalyzerRoute
   AppsRewriterRoute: typeof AppsRewriterRoute
+  AppsSlmEvaluatorRoute: typeof AppsSlmEvaluatorRoute
   AppsSqlRoute: typeof AppsSqlRoute
   AppsSummarizerRoute: typeof AppsSummarizerRoute
   AppsSupportRoute: typeof AppsSupportRoute
@@ -609,6 +622,13 @@ declare module '@tanstack/react-router' {
       path: '/apps/sql'
       fullPath: '/apps/sql'
       preLoaderRoute: typeof AppsSqlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apps/slm-evaluator': {
+      id: '/apps/slm-evaluator'
+      path: '/apps/slm-evaluator'
+      fullPath: '/apps/slm-evaluator'
+      preLoaderRoute: typeof AppsSlmEvaluatorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/apps/rewriter': {
@@ -826,6 +846,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppsResumeScreenerRoute: AppsResumeScreenerRoute,
   AppsReviewAnalyzerRoute: AppsReviewAnalyzerRoute,
   AppsRewriterRoute: AppsRewriterRoute,
+  AppsSlmEvaluatorRoute: AppsSlmEvaluatorRoute,
   AppsSqlRoute: AppsSqlRoute,
   AppsSummarizerRoute: AppsSummarizerRoute,
   AppsSupportRoute: AppsSupportRoute,
